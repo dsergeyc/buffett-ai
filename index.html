@@ -3,35 +3,232 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Buffett AI — Daily Report</title>
+<title>Buffett AI — Wednesday, April 15, 2026</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; display: flex; flex-direction: column; min-height: 100vh; }
-  header { background: #1a1a2e; color: white; padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
-  .logo { font-size: 1.4rem; font-weight: 700; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    line-height: 1.6;
+  }
+
+  header {
+    background: #1a1a2e;
+    color: white;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
   .logo span { color: #4ade80; }
-  main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 20px; }
-  .card { background: white; border-radius: 16px; padding: 48px; max-width: 540px; width: 100%; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-  .card h2 { font-size: 1.4rem; margin-bottom: 16px; }
-  .card p { color: #6b7280; font-size: 0.95rem; line-height: 1.7; margin-bottom: 12px; }
-  .card code { background: #f3f4f6; padding: 12px 16px; border-radius: 8px; display: block; font-size: 0.85rem; text-align: left; margin: 16px 0; color: #374151; }
-  footer { text-align: center; padding: 20px; color: #9ca3af; font-size: 0.78rem; border-top: 1px solid #e5e7eb; }
+  .header-right { text-align: right; }
+  .report-date { font-size: 1rem; font-weight: 500; }
+  .tagline { font-size: 0.78rem; opacity: 0.55; margin-top: 2px; }
+
+  main {
+    max-width: 860px;
+    margin: 36px auto;
+    padding: 0 20px;
+  }
+
+  /* ── Market Pulse ── */
+  .market-pulse {
+    background: white;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+  .market-pulse h2 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #888;
+    margin-bottom: 10px;
+  }
+  .market-pulse p {
+    font-size: 0.95rem;
+    color: #374151;
+  }
+
+  /* ── Picks Section ── */
+  .picks h2 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #888;
+    margin-bottom: 14px;
+  }
+
+  /* ── Pick Card ── */
+  .pick-card {
+    background: white;
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border-left: 4px solid #e5e7eb;
+    transition: box-shadow 0.2s;
+  }
+  .pick-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+
+  /* Color the left border based on verdict inside */
+  .pick-card:has(.verdict-buy)   { border-left-color: #22c55e; }
+  .pick-card:has(.verdict-wait)  { border-left-color: #f59e0b; }
+  .pick-card:has(.verdict-hold)  { border-left-color: #818cf8; }
+  .pick-card:has(.verdict-avoid) { border-left-color: #f87171; }
+
+  .pick-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .pick-rank {
+    width: 28px;
+    height: 28px;
+    background: #1a1a2e;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .pick-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    flex: 1;
+    min-width: 0;
+  }
+  .pick-verdict {
+    padding: 3px 11px;
+    border-radius: 20px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+  }
+  .verdict-buy   { background: #dcfce7; color: #15803d; }
+  .verdict-wait  { background: #fef3c7; color: #92400e; }
+  .verdict-hold  { background: #ede9fe; color: #5b21b6; }
+  .verdict-avoid { background: #fee2e2; color: #991b1b; }
+
+  .pick-scores {
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin-bottom: 12px;
+  }
+  .pick-card p {
+    font-size: 0.9rem;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+  .pick-card p strong { color: #1a1a2e; }
+
+  /* ── Top Pick ── */
+  .top-pick {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 28px 0 14px;
+  }
+  .top-pick h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .top-pick p {
+    font-size: 0.92rem;
+    opacity: 0.88;
+    line-height: 1.7;
+  }
+
+  /* ── Buffett Quote ── */
+  .buffett-quote {
+    background: white;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 36px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    border-top: 3px solid #1a1a2e;
+  }
+  .buffett-quote p {
+    font-style: italic;
+    font-size: 0.95rem;
+    color: #374151;
+    line-height: 1.75;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 20px;
+    color: #9ca3af;
+    font-size: 0.78rem;
+    border-top: 1px solid #e5e7eb;
+  }
+  footer a { color: #6b7280; }
+
+  @media (max-width: 600px) {
+    header { padding: 18px 20px; }
+    .header-right { text-align: left; }
+    main { margin: 20px auto; }
+    .pick-card { padding: 18px; }
+  }
 </style>
 </head>
 <body>
+
 <header>
   <div class="logo">📈 Buffett <span>AI</span></div>
-  <div style="font-size:0.78rem;opacity:0.5">Daily Investment Report</div>
-</header>
-<main>
-  <div class="card">
-    <h2>⏳ First report coming soon</h2>
-    <p>The daily report will appear here automatically every weekday at 9 AM ET once GitHub Actions is set up.</p>
-    <p>To generate the first report right now, go to your GitHub repo → <strong>Actions</strong> tab → <strong>Daily Buffett Report</strong> → <strong>Run workflow</strong>.</p>
-    <p>Or run it locally:</p>
-    <code>export ANTHROPIC_API_KEY=sk-ant-...<br>python3 generate_report.py</code>
+  <div class="header-right">
+    <div class="report-date">Wednesday, April 15, 2026</div>
+    <div class="tagline">Daily Investment Report · Warren Buffett's Framework</div>
   </div>
+</header>
+
+<main>
+Now let me build the HTML report with all the research compiled:Here's your **Buffett AI Daily Report for Wednesday, April 15, 2026** — exported as `buffett-report-2026-04-15.html`.
+
+---
+
+### Report Summary
+
+**Market Pulse:** The S&P 500 surged past its all-time high, surpassing 7,000 for the first time since January 28, with stocks edging higher at the open as strong bank results and optimism over potential Iran peace talks shaped early trading. The Nasdaq climbed 1.15% to 23,911, while crude oil held at $91.81, gold sat at $4,816, and the VIX eased to 18.14.
+
+Key catalysts today:
+- **Bank earnings crushed it:** Bank of America posted Q1 EPS of $1.11, significantly outpacing the consensus estimate of $1.01, with net income of $8.6 billion — a 17% increase YoY. Morgan Stanley reported record revenues of $20.6 billion and EPS of $3.43, beating estimates of $3.09 by $0.34.
+- **Iran ceasefire extension talks:** The US and Iran are considering extending their ceasefire by another two weeks to allow more time to negotiate a peace agreement.
+
+### Today's 5 Picks (scored on Buffett's 40-point framework):
+
+| Rank | Stock | Score | Verdict |
+|------|-------|-------|---------|
+| 1 | **Constellation Brands (STZ)** | 31/40 | 🟢 BUY NOW |
+| 2 | **Merck (MRK)** | 33/40 | 🟢 BUY NOW |
+| 3 | **Visa (V)** | 38/40 | 🟡 HOLD/ACCUMULATE |
+| 4 | **American Express (AXP)** | 33/40 | 🟡 HOLD/ACCUMULATE |
+| 5 | **Palo Alto Networks (PANW)** | 29/40 | ⏳ WAIT FOR LOWER ENTRY |
+
+### 🏆 Top Pick: **Constellation Brands (STZ) at $165**
+A wide-moat consumer brand (Corona, Modelo) trading at just 13x forward earnings with 52% gross margins and a ~5% FCF yield. The 52-week range is $126–$197, putting the current price in the value zone. Alpha Spread's DCF intrinsic value is $217.72, implying ~25% margin of safety — exactly the discount Buffett demands.
 </main>
-<footer>Buffett AI · Not financial advice · Do your own research</footer>
+
+<footer>
+  <p>Generated by Buffett AI · Not financial advice · Always do your own research</p>
+  <p style="margin-top:4px">Last updated: 2026-04-15 19:37 UTC</p>
+</footer>
+
 </body>
 </html>
