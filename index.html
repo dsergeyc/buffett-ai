@@ -3,232 +3,283 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Buffett AI — Wednesday, April 15, 2026</title>
+<title>Buffett AI — Portfolio Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:#0d1b2a; --green:#10b981; --green2:#d1fae5;
+  --amber:#f59e0b; --amber2:#fef3c7; --violet:#8b5cf6; --violet2:#ede9fe;
+  --red:#ef4444; --red2:#fee2e2; --ink:#111827; --muted:#6b7280;
+  --border:#e5e7eb; --bg:#f4f6f9; --card:#fff; --r:12px;
+}
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--ink); font-size:14px; line-height:1.5; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f0f2f5;
-    color: #1a1a2e;
-    line-height: 1.6;
-  }
+header {
+  background:var(--navy); border-bottom:3px solid var(--green);
+  padding:0 32px; display:flex; align-items:center; justify-content:space-between; gap:20px;
+}
+.logo-wrap { display:flex; align-items:center; gap:12px; padding:16px 0; }
+.logo-icon { width:34px; height:34px; background:var(--green); border-radius:8px;
+  display:flex; align-items:center; justify-content:center; font-size:1rem; }
+.logo-text strong { display:block; font-family:'Playfair Display',serif; font-size:1.15rem; color:#fff; }
+.logo-text small { font-size:.62rem; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:.1em; }
+.hdr-right { color:rgba(255,255,255,.45); font-size:.72rem; text-align:right; padding:16px 0; }
+.hdr-right strong { display:block; color:#fff; font-size:.88rem; margin-bottom:2px; }
 
-  header {
-    background: #1a1a2e;
-    color: white;
-    padding: 20px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
-  .logo span { color: #4ade80; }
-  .header-right { text-align: right; }
-  .report-date { font-size: 1rem; font-weight: 500; }
-  .tagline { font-size: 0.78rem; opacity: 0.55; margin-top: 2px; }
+.pulse-bar {
+  background:#fff; border-bottom:1px solid var(--border);
+  padding:12px 32px; font-size:.82rem; color:#374151; line-height:1.6;
+}
+.pulse-bar strong { color:var(--navy); font-weight:600; margin-right:6px; }
 
-  main {
-    max-width: 860px;
-    margin: 36px auto;
-    padding: 0 20px;
-  }
+.summary {
+  background:#fff; border-bottom:1px solid var(--border);
+  padding:14px 32px; display:flex; align-items:center; gap:32px; flex-wrap:wrap;
+}
+.stat { display:flex; flex-direction:column; gap:2px; }
+.stat-label { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
+.stat-val { font-size:1.15rem; font-weight:700; letter-spacing:-.02em; }
+.pos { color:#059669; } .neg { color:var(--red); }
+.sep { width:1px; height:30px; background:var(--border); flex-shrink:0; }
+.btn {
+  background:var(--green); color:#fff; border:none; border-radius:8px;
+  padding:7px 15px; font:600 .76rem 'Inter',sans-serif; cursor:pointer; transition:background .15s;
+}
+.btn:hover { background:#059669; }
+.btn-ghost {
+  background:transparent; color:var(--muted); border:1px solid var(--border);
+  border-radius:8px; padding:7px 13px; font:600 .76rem 'Inter',sans-serif; cursor:pointer; transition:all .15s;
+}
+.btn-ghost:hover { border-color:var(--navy); color:var(--navy); }
+.live-dot {
+  width:7px; height:7px; border-radius:50%; background:var(--green);
+  display:inline-block; margin-right:5px; animation:pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-  /* ── Market Pulse ── */
-  .market-pulse {
-    background: white;
-    border-radius: 12px;
-    padding: 24px 28px;
-    margin-bottom: 28px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-  }
-  .market-pulse h2 {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: #888;
-    margin-bottom: 10px;
-  }
-  .market-pulse p {
-    font-size: 0.95rem;
-    color: #374151;
-  }
+main { max-width:1280px; margin:28px auto; padding:0 24px 40px; }
+.card { background:var(--card); border-radius:var(--r); border:1px solid var(--border);
+  box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04); overflow:hidden; }
+.card-hdr {
+  padding:12px 20px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.card-title { font-size:.63rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); }
+.card-meta { font-size:.68rem; color:var(--muted); }
 
-  /* ── Picks Section ── */
-  .picks h2 {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: #888;
-    margin-bottom: 14px;
-  }
+table { width:100%; border-collapse:collapse; }
+th {
+  text-align:left; font-size:.59rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--muted); padding:10px 16px;
+  border-bottom:1px solid var(--border); white-space:nowrap;
+}
+td { padding:11px 16px; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#f9fafb; }
 
-  /* ── Pick Card ── */
-  .pick-card {
-    background: white;
-    border-radius: 12px;
-    padding: 22px 26px;
-    margin-bottom: 14px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    border-left: 4px solid #e5e7eb;
-    transition: box-shadow 0.2s;
-  }
-  .pick-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
+.td-ticker { font-weight:700; font-size:.88rem; color:var(--navy); }
+.td-name   { color:var(--muted); font-size:.82rem; }
+.td-num    { font-variant-numeric:tabular-nums; white-space:nowrap; }
+.fw6       { font-weight:600; }
+.td-reason { color:var(--muted); font-size:.75rem; max-width:200px; }
+.pct       { opacity:.6; font-size:.8em; }
 
-  /* Color the left border based on verdict inside */
-  .pick-card:has(.verdict-buy)   { border-left-color: #22c55e; }
-  .pick-card:has(.verdict-wait)  { border-left-color: #f59e0b; }
-  .pick-card:has(.verdict-hold)  { border-left-color: #818cf8; }
-  .pick-card:has(.verdict-avoid) { border-left-color: #f87171; }
+.vbadge {
+  display:inline-block; padding:3px 9px; border-radius:100px;
+  font-size:.61rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; white-space:nowrap;
+}
+.v-buy  { background:var(--green2);  color:#065f46; }
+.v-hold { background:var(--violet2); color:#4c1d95; }
+.v-trim { background:var(--amber2);  color:#78350f; }
+.v-sell { background:var(--red2);    color:#7f1d1d; }
 
-  .pick-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-  }
-  .pick-rank {
-    width: 28px;
-    height: 28px;
-    background: #1a1a2e;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.82rem;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-  .pick-name {
-    font-size: 1.15rem;
-    font-weight: 700;
-    flex: 1;
-    min-width: 0;
-  }
-  .pick-verdict {
-    padding: 3px 11px;
-    border-radius: 20px;
-    font-size: 0.74rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    white-space: nowrap;
-  }
-  .verdict-buy   { background: #dcfce7; color: #15803d; }
-  .verdict-wait  { background: #fef3c7; color: #92400e; }
-  .verdict-hold  { background: #ede9fe; color: #5b21b6; }
-  .verdict-avoid { background: #fee2e2; color: #991b1b; }
+footer { text-align:center; padding:24px; color:#9ca3af; font-size:.72rem; }
 
-  .pick-scores {
-    font-size: 0.82rem;
-    color: #6b7280;
-    margin-bottom: 12px;
-  }
-  .pick-card p {
-    font-size: 0.9rem;
-    color: #374151;
-    margin-bottom: 6px;
-  }
-  .pick-card p strong { color: #1a1a2e; }
-
-  /* ── Top Pick ── */
-  .top-pick {
-    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
-    color: white;
-    border-radius: 12px;
-    padding: 24px 28px;
-    margin: 28px 0 14px;
-  }
-  .top-pick h2 {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-  }
-  .top-pick p {
-    font-size: 0.92rem;
-    opacity: 0.88;
-    line-height: 1.7;
-  }
-
-  /* ── Buffett Quote ── */
-  .buffett-quote {
-    background: white;
-    border-radius: 12px;
-    padding: 24px 28px;
-    margin-bottom: 36px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    border-top: 3px solid #1a1a2e;
-  }
-  .buffett-quote p {
-    font-style: italic;
-    font-size: 0.95rem;
-    color: #374151;
-    line-height: 1.75;
-  }
-
-  /* ── Footer ── */
-  footer {
-    text-align: center;
-    padding: 20px;
-    color: #9ca3af;
-    font-size: 0.78rem;
-    border-top: 1px solid #e5e7eb;
-  }
-  footer a { color: #6b7280; }
-
-  @media (max-width: 600px) {
-    header { padding: 18px 20px; }
-    .header-right { text-align: left; }
-    main { margin: 20px auto; }
-    .pick-card { padding: 18px; }
-  }
+@media(max-width:768px) {
+  th:nth-child(3), td:nth-child(3),
+  th:nth-child(8), td:nth-child(8) { display:none; }
+  .summary { gap:16px; padding:12px 16px; }
+  header, .pulse-bar, .summary { padding-left:16px; padding-right:16px; }
+  main { padding:16px 12px 32px; }
+}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">📈 Buffett <span>AI</span></div>
-  <div class="header-right">
-    <div class="report-date">Wednesday, April 15, 2026</div>
-    <div class="tagline">Daily Investment Report · Warren Buffett's Framework</div>
+  <div class="logo-wrap">
+    <div class="logo-icon">📈</div>
+    <div class="logo-text">
+      <strong>Buffett AI</strong>
+      <small>Portfolio Dashboard</small>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <strong>Wednesday, April 15, 2026</strong>
+    Verdicts updated 2026-04-15 20:16 UTC
   </div>
 </header>
 
+<div class="pulse-bar">
+  <strong>Market Pulse</strong>The S&P 500 hit a new all-time high today, surpassing 7,000, driven by strong bank earnings — including results from Bank of America and Morgan Stanley, two companies Berkshire Hathaway holds significant stakes in. Optimism over a potential Middle East peace deal also boosted markets. The IMF, however, trimmed its 2026 global growth forecast to 3.1% from 3.3%, citing the energy shock from Middle East tensions — a macro headwind Buffett would weigh carefully when thinking about the long-term earnings power of his portfolio businesses.
+</div>
+
+<div class="summary">
+  <div class="stat">
+    <span class="stat-label">Portfolio Value</span>
+    <span class="stat-val" id="total-value">—</span>
+  </div>
+  <div class="sep"></div>
+  <div class="stat">
+    <span class="stat-label">Today's P&amp;L</span>
+    <span class="stat-val" id="total-pnl">—</span>
+  </div>
+  <div class="sep"></div>
+  <div class="stat">
+    <span class="stat-label">Positions</span>
+    <span class="stat-val">18</span>
+  </div>
+  <div class="sep"></div>
+  <div class="stat">
+    <span class="stat-label">Prices</span>
+    <span class="stat-val" style="font-size:.82rem;color:var(--muted)">
+      <span class="live-dot" id="live-dot" style="background:#9ca3af"></span>
+      <span id="price-status">Loading…</span>
+    </span>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button class="btn-ghost" onclick="refreshPrices()">↻ Prices</button>
+  </div>
+</div>
+
 <main>
-Now let me build the HTML report with all the research compiled:Here's your **Buffett AI Daily Report for Wednesday, April 15, 2026** — exported as `buffett-report-2026-04-15.html`.
-
----
-
-### Report Summary
-
-**Market Pulse:** The S&P 500 surged past its all-time high, surpassing 7,000 for the first time since January 28, with stocks edging higher at the open as strong bank results and optimism over potential Iran peace talks shaped early trading. The Nasdaq climbed 1.15% to 23,911, while crude oil held at $91.81, gold sat at $4,816, and the VIX eased to 18.14.
-
-Key catalysts today:
-- **Bank earnings crushed it:** Bank of America posted Q1 EPS of $1.11, significantly outpacing the consensus estimate of $1.01, with net income of $8.6 billion — a 17% increase YoY. Morgan Stanley reported record revenues of $20.6 billion and EPS of $3.43, beating estimates of $3.09 by $0.34.
-- **Iran ceasefire extension talks:** The US and Iran are considering extending their ceasefire by another two weeks to allow more time to negotiate a peace agreement.
-
-### Today's 5 Picks (scored on Buffett's 40-point framework):
-
-| Rank | Stock | Score | Verdict |
-|------|-------|-------|---------|
-| 1 | **Constellation Brands (STZ)** | 31/40 | 🟢 BUY NOW |
-| 2 | **Merck (MRK)** | 33/40 | 🟢 BUY NOW |
-| 3 | **Visa (V)** | 38/40 | 🟡 HOLD/ACCUMULATE |
-| 4 | **American Express (AXP)** | 33/40 | 🟡 HOLD/ACCUMULATE |
-| 5 | **Palo Alto Networks (PANW)** | 29/40 | ⏳ WAIT FOR LOWER ENTRY |
-
-### 🏆 Top Pick: **Constellation Brands (STZ) at $165**
-A wide-moat consumer brand (Corona, Modelo) trading at just 13x forward earnings with 52% gross margins and a ~5% FCF yield. The 52-week range is $126–$197, putting the current price in the value zone. Alpha Spread's DCF intrinsic value is $217.72, implying ~25% margin of safety — exactly the discount Buffett demands.
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-title">Holdings</span>
+      <span class="card-meta" id="verdict-meta">Verdicts by Claude (Warren Buffett framework) · 2026-04-15 20:16 UTC</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Ticker</th>
+          <th>Name</th>
+          <th>Shares</th>
+          <th>Price</th>
+          <th>Value</th>
+          <th>Today</th>
+          <th>Verdict</th>
+          <th>Why</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
 </main>
 
-<footer>
-  <p>Generated by Buffett AI · Not financial advice · Always do your own research</p>
-  <p style="margin-top:4px">Last updated: 2026-04-15 19:37 UTC</p>
-</footer>
+<footer>Buffett AI &nbsp;·&nbsp; Not financial advice &nbsp;·&nbsp; Always do your own research</footer>
 
+<script>
+const PORTFOLIO = [{"ticker": "ADBE", "label": "ADBE", "name": "Adobe", "shares": null, "value": 100000, "price": 244.66, "prev": 235.72, "verdict": "BUY MORE", "reason": "P/E ~13x, historically cheap, strong FCF, AI fears overdone"}, {"ticker": "AAPL", "label": "AAPL", "name": "Apple", "shares": 78, "value": null, "price": 266.43, "prev": 258.83, "verdict": "HOLD", "reason": "P/E ~33x, unmatched moat, 34% above 10-yr avg"}, {"ticker": "QQQ", "label": "QQQ", "name": "QQQ ETF", "shares": 29.12, "value": null, "price": 637.4, "prev": 628.6, "verdict": "HOLD", "reason": "Nasdaq-100 ETF, P/E ~33x, diversified but growth-heavy"}, {"ticker": "QQQM", "label": "QQQM", "name": "QQQM ETF", "shares": 14, "value": null, "price": 262.48, "prev": 258.78, "verdict": "HOLD", "reason": "Same as QQQ, P/E ~33x, lower-cost but identical exposure"}, {"ticker": "MSFT", "label": "MSFT", "name": "Microsoft", "shares": 35, "value": null, "price": 411.22, "prev": 393.11, "verdict": "BUY MORE", "reason": "P/E ~24x, durable moat, cloud leadership, fair value"}, {"ticker": "SHOP", "label": "SHOP", "name": "Shopify", "shares": 81, "value": null, "price": 127.41, "prev": 117.64, "verdict": "TRIM", "reason": "P/E ~122x, EV/EBITDA 76x, no margin of safety"}, {"ticker": "NVDA", "label": "NVDA", "name": "NVIDIA", "shares": 39, "value": null, "price": 198.87, "prev": 196.51, "verdict": "HOLD", "reason": "P/E ~38x, dominant AI chip moat, cycle risk remains"}, {"ticker": "GOOGL", "label": "GOOGL", "name": "Alphabet", "shares": 14, "value": null, "price": 337.12, "prev": 332.91, "verdict": "BUY MORE", "reason": "P/E ~29x, search moat, cash-rich, reasonable valuation"}, {"ticker": "TSLA", "label": "TSLA", "name": "Tesla", "shares": 8, "value": null, "price": 391.95, "prev": 364.2, "verdict": "SELL", "reason": "P/E ~379x, pure speculation, zero margin of safety"}, {"ticker": "META", "label": "META", "name": "Meta", "shares": 4, "value": null, "price": 671.58, "prev": 662.49, "verdict": "BUY MORE", "reason": "P/E ~27x, social media moat, strong FCF, attractive"}, {"ticker": "NFLX", "label": "NFLX", "name": "Netflix", "shares": 45, "value": null, "price": 107.71, "prev": 106.28, "verdict": "HOLD", "reason": "P/E ~41x, streaming moat, premium but justified growth"}, {"ticker": "AMD", "label": "AMD", "name": "AMD", "shares": 14, "value": null, "price": 258.12, "prev": 255.07, "verdict": "TRIM", "reason": "P/E ~81x, losing AI share to NVDA, overvalued"}, {"ticker": "TWLO", "label": "TWLO", "name": "Twilio", "shares": 18, "value": null, "price": 134.07, "prev": 124.0, "verdict": "SELL", "reason": "P/E ~609x, near-zero earnings, no Buffett margin of safety"}, {"ticker": "TCEHY", "label": "TCEHY", "name": "Tencent", "shares": 27, "value": null, "price": 64.19, "prev": 63.73, "verdict": "HOLD", "reason": "P/E ~21x, cheap valuation, China regulatory risk discount"}, {"ticker": "VOO", "label": "VOO", "name": "VOO ETF", "shares": 1, "value": null, "price": 643.45, "prev": 638.35, "verdict": "BUY MORE", "reason": "P/E ~28x, S&P 500 index, Buffett-endorsed passive strategy"}, {"ticker": "ORCL", "label": "ORCL", "name": "Oracle", "shares": 12, "value": null, "price": 169.81, "prev": 163.0, "verdict": "BUY MORE", "reason": "P/E ~28x, down from 44x avg, cloud pivot gaining momentum"}, {"ticker": "BTC-USD", "label": "BTC", "name": "Bitcoin", "shares": 0.05821928, "value": null, "price": 74708.0312, "prev": 74181.6094, "verdict": "\u2014", "reason": ""}, {"ticker": "ETH-USD", "label": "ETH", "name": "Ethereum", "shares": 0.84374, "value": null, "price": 2363.0901, "prev": 2323.3086, "verdict": "\u2014", "reason": ""}];
+
+const VERDICT_CLASS = {
+  "BUY MORE": "v-buy",
+  "HOLD":     "v-hold",
+  "TRIM":     "v-trim",
+  "SELL":     "v-sell",
+};
+
+function fmt(n, digits=2) {
+  return n.toLocaleString('en-US', {minimumFractionDigits: digits, maximumFractionDigits: digits});
+}
+
+function renderTable(data) {
+  let totalValue = 0, totalGain = 0;
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  data.forEach(p => {
+    const price  = p.price || 0;
+    const prev   = p.prev  || price;
+    const shares = p.value && price > 0 ? p.value / price : (p.shares || 0);
+    const value  = price * shares;
+    const gain   = (price - prev) * shares;
+    const pct    = prev ? (price - prev) / prev * 100 : 0;
+    totalValue += value;
+    totalGain  += gain;
+
+    const gainSign = gain >= 0 ? '+' : '';
+    const gainCls  = gain >= 0 ? 'pos' : 'neg';
+    const shareStr = p.ticker.endsWith('-USD') ? shares.toFixed(5) : fmt(shares, 0);
+    const vc = VERDICT_CLASS[p.verdict] || 'v-hold';
+
+    tbody.innerHTML += `
+      <tr>
+        <td class="td-ticker">${p.label}</td>
+        <td class="td-name">${p.name}</td>
+        <td class="td-num">${shareStr}</td>
+        <td class="td-num fw6">$${fmt(price)}</td>
+        <td class="td-num fw6">$${fmt(value, 0)}</td>
+        <td class="td-num ${gainCls}">${gainSign}$${fmt(Math.abs(gain), 0)}<span class="pct"> (${gainSign}${Math.abs(pct).toFixed(2)}%)</span></td>
+        <td><span class="vbadge ${vc}">${p.verdict}</span></td>
+        <td class="td-reason">${p.reason}</td>
+      </tr>`;
+  });
+
+  document.getElementById('total-value').textContent = '$' + fmt(totalValue, 0);
+  const pnlEl = document.getElementById('total-pnl');
+  const sign  = totalGain >= 0 ? '+' : '';
+  pnlEl.textContent = sign + '$' + fmt(Math.abs(totalGain), 0);
+  pnlEl.className   = 'stat-val ' + (totalGain >= 0 ? 'pos' : 'neg');
+}
+
+// Render immediately with baked-in prices
+renderTable(PORTFOLIO);
+
+// ── Live price refresh via Yahoo Finance ────────────────────────────────
+async function refreshPrices() {
+  document.getElementById('price-status').textContent = 'Updating…';
+  document.getElementById('live-dot').style.background = '#f59e0b';
+
+  const tickers = PORTFOLIO.map(p => p.ticker).join(',');
+  const yhUrl   = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${tickers}&lang=en-US&region=US`;
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(yhUrl)}`;
+
+  try {
+    const res  = await fetch(proxyUrl, {signal: AbortSignal.timeout(10000)});
+    const data = await res.json();
+    const quotes = data?.quoteResponse?.result || [];
+
+    if (quotes.length === 0) throw new Error('empty');
+
+    const priceMap = {};
+    quotes.forEach(q => {
+      priceMap[q.symbol] = {
+        price: q.regularMarketPrice,
+        prev:  q.regularMarketPreviousClose,
+      };
+    });
+
+    const updated = PORTFOLIO.map(p => ({
+      ...p,
+      price: priceMap[p.ticker]?.price ?? p.price,
+      prev:  priceMap[p.ticker]?.prev  ?? p.prev,
+    }));
+
+    renderTable(updated);
+    const now = new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('price-status').textContent = `Live · ${now}`;
+    document.getElementById('live-dot').style.background = '#10b981';
+  } catch (e) {
+    document.getElementById('price-status').textContent = 'Snapshot (as of report)';
+    document.getElementById('live-dot').style.background = '#9ca3af';
+  }
+}
+
+// Initial live fetch + auto-refresh every 60s
+refreshPrices();
+setInterval(refreshPrices, 60000);
+</script>
 </body>
 </html>
