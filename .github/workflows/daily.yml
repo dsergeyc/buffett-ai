@@ -23,19 +23,19 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install anthropic
+        run: pip install anthropic yfinance
 
-      - name: Generate report
+      - name: Generate dashboard
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python generate_report.py
+        run: python generate_dashboard.py
 
-      - name: Commit and push updated report
+      - name: Commit and push updated dashboard
         run: |
           git config user.name "Buffett AI Bot"
           git config user.email "buffett-ai@users.noreply.github.com"
           git add index.html
           git diff --staged --quiet || (
-            git commit -m "Daily report: $(date +%Y-%m-%d)" &&
+            git commit -m "Daily dashboard: $(date +%Y-%m-%d)" &&
             git push
           )

@@ -98,45 +98,77 @@ def load_cached_verdicts():
     return None, 0
 
 
-def fetch_verdicts():
+def fetch_verdicts(prices: dict | None = None):
+    import re
     stock_tickers = [p["ticker"] for p in PORTFOLIO
                      if not p["ticker"].endswith("-USD")]
     client = anthropic.Anthropic()
+
+    # Build price context from already-fetched yfinance data (no web search needed)
+    price_lines = []
+    for t in stock_tickers:
+        pd = (prices or {}).get(t, {})
+        pr = pd.get("price", 0)
+        pv = pd.get("prev", pr)
+        pct = (pr - pv) / pv * 100 if pv else 0
+        sign = "+" if pct >= 0 else ""
+        if pr:
+            price_lines.append(f"  {t}: ${pr:.2f} ({sign}{pct:.1f}% today)")
+    price_ctx = "\nCurrent prices:\n" + "\n".join(price_lines) if price_lines else ""
+
     try:
         resp = client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=2500,
-            tools=[{"type": "web_search_20260209", "name": "web_search"}],
+            max_tokens=3000,
+            system=(
+                "You are a Warren Buffett investment analyst. "
+                "You respond ONLY with a valid JSON object — no preamble, no explanation, "
+                "no markdown fences, no trailing text. Pure JSON only."
+            ),
             messages=[{
                 "role": "user",
                 "content": (
-                    "Search current prices and valuations, then give a Warren Buffett verdict "
-                    "for each of these stocks.\n\n"
+                    f"Give a Warren Buffett verdict (BUY MORE / HOLD / TRIM / SELL) "
+                    f"for each of these stocks.{price_ctx}\n\n"
                     f"Stocks: {', '.join(stock_tickers)}\n\n"
-                    "Return ONLY a valid JSON object — no other text, no markdown:\n"
-                    '{"AAPL": {"verdict": "HOLD", "reason": "P/E 28x, great moat, fairly valued"}, ...}\n\n'
-                    "verdict must be exactly one of: BUY MORE, HOLD, TRIM, SELL\n"
-                    "reason must be under 12 words, include P/E or key metric if available."
+                    "Rules:\n"
+                    "- verdict is exactly one of: BUY MORE, HOLD, TRIM, SELL\n"
+                    "- reason is under 12 words, must include a specific valuation metric\n"
+                    "- BUY MORE = trading below intrinsic value, strong moat\n"
+                    "- HOLD = good business, fairly valued, keep but don't add\n"
+                    "- TRIM = richly valued or moat weakening, reduce position\n"
+                    "- SELL = broken moat, dangerously overvalued, or better uses of capital\n\n"
+                    'Return this exact format:\n'
+                    '{"AAPL":{"verdict":"HOLD","reason":"P/E 28x, great moat, fairly valued"},'
+                    '"MSFT":{"verdict":"HOLD","reason":"P/E 32x, cloud moat intact but rich"}}'
                 ),
             }],
         )
-        text = "".join(b.text for b in resp.content if hasattr(b, "text"))
-        start, end = text.find("{"), text.rfind("}") + 1
-        verdicts = json.loads(text[start:end]) if start != -1 else {}
+        text = "".join(b.text for b in resp.content if hasattr(b, "text")).strip()
+
+        # Extract the outermost JSON object robustly
+        start = text.find("{")
+        end   = text.rfind("}") + 1
+        if start == -1:
+            raise ValueError("No JSON found in response")
+        verdicts = json.loads(text[start:end])
+
     except Exception as e:
         print(f"  ⚠ Verdict fetch error: {e}")
         verdicts = {}
 
-    VERDICT_CACHE.write_text(json.dumps({"ts": time.time(), "verdicts": verdicts}))
+    # Only cache if we got real results
+    if verdicts:
+        VERDICT_CACHE.write_text(json.dumps({"ts": time.time(), "verdicts": verdicts}))
     return verdicts
 
 
-def get_verdicts():
+def get_verdicts(prices: dict | None = None):
     verdicts, _ = load_cached_verdicts()
-    if verdicts is not None:
+    if verdicts:
         return verdicts
-    print("  Refreshing Buffett verdicts via Claude...")
-    return fetch_verdicts()
+    print("  Refreshing Buffett verdicts via Claude…")
+    return fetch_verdicts(prices)
 
 
 # ── DASHBOARD HTML ─────────────────────────────────────────────────────────
@@ -179,7 +211,7 @@ def build_html(prices: dict, verdicts: dict) -> str:
         v      = verdicts.get(label_ticker, {})
         verdict = v.get("verdict", "—")
         reason  = v.get("reason", "")
-        vc     = VERDICT_CLASS.get(verdict, "v-hold")
+        vc     = VERDICT_CLASS.get(verdict, "")
 
         sign      = "+" if day_gain >= 0 else ""
         gain_cls  = "pos" if day_gain >= 0 else "neg"
@@ -193,7 +225,7 @@ def build_html(prices: dict, verdicts: dict) -> str:
         <td class="td-num">${price:,.2f}</td>
         <td class="td-num bold">${value:,.0f}</td>
         <td class="td-num {gain_cls}">{sign}${day_gain:,.0f}<span class="pct"> ({sign}{day_pct:.2f}%)</span></td>
-        <td><span class="vbadge {vc}">{verdict}</span></td>
+        <td>{"<span class='vbadge " + vc + "'>" + verdict + "</span>" if vc else "<span style='color:#d1d5db'>—</span>"}</td>
         <td class="td-reason">{reason}</td>
       </tr>""")
 
@@ -419,7 +451,7 @@ class Handler(BaseHTTPRequestHandler):
 
         with _price_lock:
             prices = dict(_price_cache)
-        verdicts = get_verdicts()
+        verdicts = get_verdicts(prices)
         html = build_html(prices, verdicts).encode()
 
         self.send_response(200)
