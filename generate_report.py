@@ -19,11 +19,11 @@ Warren Buffett's framework:
 - PREDICTABILITY: can you project earnings 10 years out? avoid airlines/commodities/fast-changing tech
 - VALUATION: intrinsic value = owner earnings / (discount rate - growth). Want 20-30% margin of safety
 
-Verdict definitions:
-- BUY NOW: trading at a meaningful discount to intrinsic value, high-quality business, act now
-- WAIT FOR DIP: great business but fairly/richly valued — wait for a 10-20%+ pullback
-- HOLD: own it, don't add, not a bargain today
-- AVOID: poor moat, bad financials, or so overvalued the risk/reward is poor
+Verdict definitions (for the watchlist section):
+- BUY MORE: trading at a meaningful discount to intrinsic value — add to position now
+- HOLD: good business, fairly valued — keep what you have, don't add aggressively
+- TRIM: richly valued or moat weakening — consider reducing position size
+- SELL: overvalued, broken moat, or better capital deployment elsewhere — exit
 
 Output ONLY HTML body content (no <!DOCTYPE>, no <html>, <head>, or <body> tags).
 Use EXACTLY these CSS class names — no others:
@@ -45,17 +45,17 @@ Structure your output in this EXACT order:
   <h2>Buffett Verdict — Stocks Investors Are Watching</h2>
   <p class="watchlist-intro">What would Buffett do with the most-discussed stocks right now?</p>
 
-  <!-- Include 12–16 major stocks investors commonly ask about today.
-       Always cover: AAPL, MSFT, NVDA, GOOGL, META, AMZN, ORCL, TSLA, BRK.B, JPM, V, WMT
-       Add any others that are in the news or heavily discussed today.
+  <!-- Cover every stock in the user's portfolio FIRST:
+       AAPL, MSFT, NVDA, GOOGL, META, TSLA, NFLX, SHOP, AMD, TWLO, ORCL, ADBE, TCEHY, BTC, ETH
+       Then add other widely-held or news-relevant stocks (AMZN, BRK.B, JPM, V, WMT, etc.)
        Use real current prices and valuations from your search. -->
 
   <div class="watchlist-item">
     <span class="watchlist-ticker">MSFT</span>
     <span class="watchlist-company">Microsoft</span>
     <span class="watchlist-price">$XXX</span>
-    <span class="watchlist-verdict verdict-wait">WAIT FOR DIP</span>
-    <span class="watchlist-note">P/E 32x — excellent moat but priced for perfection. Wait for sub-$380.</span>
+    <span class="watchlist-verdict verdict-hold">HOLD</span>
+    <span class="watchlist-note">P/E 32x — excellent moat but priced for perfection. Hold, don't add here.</span>
   </div>
 
   [more watchlist-item rows for each stock]
@@ -709,18 +709,22 @@ def generate_report():
             "role": "user",
             "content": (
                 f"Generate the daily Buffett AI investment report for {date_str}.\n\n"
-                "Search for the following and use REAL current prices and valuations:\n\n"
-                "1. Today's market overview — what's moving, what Buffett would notice\n\n"
-                "2. BUFFETT VERDICT on these specific stocks — search current price and P/E for each:\n"
-                "   AAPL, MSFT, NVDA, GOOGL, META, AMZN, ORCL, TSLA, BRK.B, JPM, V, WMT\n"
-                "   Plus any other stocks that are heavily discussed in the news today.\n"
-                "   Give each a verdict: BUY NOW / WAIT FOR DIP / HOLD / AVOID\n"
-                "   Include the current price and one-line reason for each verdict.\n\n"
-                "3. The 5 best opportunities right now — wide-moat businesses with FCF yields\n"
-                "   above 4%, P/E below 5-year average, or recent price dislocations.\n"
-                "   These can overlap with the watchlist above.\n\n"
+                "Search for real current prices and valuations. Use ONLY clean HTML output.\n\n"
+                "1. Today's market overview — what's moving, what Buffett would notice (2-3 sentences).\n\n"
+                "2. BUFFETT VERDICT on every stock in this portfolio. Search the current price and "
+                "key valuation metrics for EACH one, then give a verdict:\n"
+                "   BUY MORE / HOLD / TRIM / SELL\n\n"
+                "   MY PORTFOLIO:\n"
+                "   AAPL, MSFT, NVDA, GOOGL, META, TSLA, NFLX, SHOP, AMD, TWLO, ORCL, ADBE,\n"
+                "   TCEHY, BTC, ETH\n\n"
+                "   Also add verdicts for any other widely-held stocks in the news today "
+                "(e.g. AMZN, BRK.B, JPM, V, WMT, etc.).\n\n"
+                "   For each stock include: current price · one-line verdict reason "
+                "(P/E, moat strength, valuation vs intrinsic value).\n\n"
+                "3. The 5 best opportunities to buy or add to right now — from the portfolio above "
+                "or any other high-quality business at a discount.\n\n"
                 "Output ONLY clean HTML using the exact CSS classes specified. "
-                "Do NOT output any markdown, explanatory text, or code fences — pure HTML only."
+                "No markdown, no explanatory text, no code fences — pure HTML only."
             )
         }],
     ) as stream:
