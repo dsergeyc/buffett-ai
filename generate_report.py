@@ -68,197 +68,448 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Buffett AI — {date}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
-  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+  *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
+
+  :root {{
+    --navy:   #0d1b2a;
+    --navy2:  #1b2d42;
+    --green:  #10b981;
+    --green2: #d1fae5;
+    --amber:  #f59e0b;
+    --amber2: #fef3c7;
+    --violet: #8b5cf6;
+    --violet2:#ede9fe;
+    --red:    #ef4444;
+    --red2:   #fee2e2;
+    --ink:    #111827;
+    --muted:  #6b7280;
+    --border: #e5e7eb;
+    --bg:     #f4f6f9;
+    --card:   #ffffff;
+    --radius: 14px;
+  }}
 
   body {{
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f0f2f5;
-    color: #1a1a2e;
-    line-height: 1.6;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+    font-size: 15px;
   }}
 
+  /* ── HEADER ── */
   header {{
-    background: #1a1a2e;
-    color: white;
-    padding: 20px 40px;
+    background: var(--navy);
+    padding: 0 40px;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 20px;
+    border-bottom: 3px solid var(--green);
+  }}
+  .logo-block {{
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
+    gap: 14px;
+    padding: 22px 0;
   }}
-  .logo {{ font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }}
-  .logo span {{ color: #4ade80; }}
-  .header-right {{ text-align: right; }}
-  .report-date {{ font-size: 1rem; font-weight: 500; }}
-  .tagline {{ font-size: 0.78rem; opacity: 0.55; margin-top: 2px; }}
-
-  main {{
-    max-width: 860px;
-    margin: 36px auto;
-    padding: 0 20px;
+  .logo-icon {{
+    width: 40px;
+    height: 40px;
+    background: var(--green);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
   }}
-
-  /* ── Market Pulse ── */
-  .market-pulse {{
-    background: white;
-    border-radius: 12px;
-    padding: 24px 28px;
-    margin-bottom: 28px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  .logo-text {{ color: white; }}
+  .logo-text strong {{
+    display: block;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.35rem;
+    line-height: 1;
+    letter-spacing: -0.01em;
   }}
-  .market-pulse h2 {{
-    font-size: 0.72rem;
+  .logo-text span {{
+    font-size: 0.7rem;
+    opacity: 0.5;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: #888;
-    margin-bottom: 10px;
+  }}
+  .header-meta {{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 3px;
+    padding: 22px 0;
+  }}
+  .header-date {{
+    color: white;
+    font-size: 0.92rem;
+    font-weight: 600;
+  }}
+  .header-tag {{
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }}
+
+  /* ── MAIN ── */
+  main {{
+    max-width: 880px;
+    margin: 40px auto;
+    padding: 0 24px;
+  }}
+
+  /* ── SECTION LABELS ── */
+  .section-label {{
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }}
+  .section-label::after {{
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }}
+
+  /* ── MARKET PULSE ── */
+  .market-pulse {{
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 26px 30px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }}
+  .market-pulse::before {{
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--navy) 0%, var(--green) 100%);
+  }}
+  .market-pulse h2 {{
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }}
+  .market-pulse h2::after {{
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
   }}
   .market-pulse p {{
     font-size: 0.95rem;
     color: #374151;
+    line-height: 1.75;
   }}
+  .market-pulse p + p {{ margin-top: 10px; }}
 
-  /* ── Picks Section ── */
+  /* ── PICKS ── */
+  .picks {{ margin-bottom: 8px; }}
   .picks h2 {{
-    font-size: 0.72rem;
+    font-size: 0.68rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: #888;
-    margin-bottom: 14px;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }}
+  .picks h2::after {{
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
   }}
 
-  /* ── Pick Card ── */
+  /* ── PICK CARD ── */
   .pick-card {{
-    background: white;
-    border-radius: 12px;
-    padding: 22px 26px;
-    margin-bottom: 14px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    border-left: 4px solid #e5e7eb;
-    transition: box-shadow 0.2s;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--border);
+    transition: box-shadow 0.18s, transform 0.18s;
   }}
-  .pick-card:hover {{ box-shadow: 0 4px 16px rgba(0,0,0,0.10); }}
-
-  /* Color the left border based on verdict inside */
-  .pick-card:has(.verdict-buy)   {{ border-left-color: #22c55e; }}
-  .pick-card:has(.verdict-wait)  {{ border-left-color: #f59e0b; }}
-  .pick-card:has(.verdict-hold)  {{ border-left-color: #818cf8; }}
-  .pick-card:has(.verdict-avoid) {{ border-left-color: #f87171; }}
+  .pick-card:hover {{
+    box-shadow: 0 8px 32px rgba(0,0,0,0.11);
+    transform: translateY(-1px);
+  }}
+  .pick-card:has(.verdict-buy)   {{ border-left-color: var(--green); }}
+  .pick-card:has(.verdict-wait)  {{ border-left-color: var(--amber); }}
+  .pick-card:has(.verdict-hold)  {{ border-left-color: var(--violet); }}
+  .pick-card:has(.verdict-avoid) {{ border-left-color: var(--red); }}
 
   .pick-header {{
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
     flex-wrap: wrap;
   }}
   .pick-rank {{
-    width: 28px;
-    height: 28px;
-    background: #1a1a2e;
+    width: 32px;
+    height: 32px;
+    background: var(--navy);
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 700;
     flex-shrink: 0;
+    letter-spacing: -0.02em;
   }}
   .pick-name {{
-    font-size: 1.15rem;
+    font-size: 1.18rem;
     font-weight: 700;
     flex: 1;
     min-width: 0;
+    letter-spacing: -0.02em;
   }}
   .pick-verdict {{
-    padding: 3px 11px;
-    border-radius: 20px;
-    font-size: 0.74rem;
+    padding: 5px 14px;
+    border-radius: 100px;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     white-space: nowrap;
   }}
-  .verdict-buy   {{ background: #dcfce7; color: #15803d; }}
-  .verdict-wait  {{ background: #fef3c7; color: #92400e; }}
-  .verdict-hold  {{ background: #ede9fe; color: #5b21b6; }}
-  .verdict-avoid {{ background: #fee2e2; color: #991b1b; }}
+  .verdict-buy   {{ background: var(--green2); color: #065f46; }}
+  .verdict-wait  {{ background: var(--amber2); color: #78350f; }}
+  .verdict-hold  {{ background: var(--violet2); color: #4c1d95; }}
+  .verdict-avoid {{ background: var(--red2); color: #7f1d1d; }}
 
-  .pick-scores {{
-    font-size: 0.82rem;
-    color: #6b7280;
-    margin-bottom: 12px;
-  }}
-  .pick-card p {{
-    font-size: 0.9rem;
-    color: #374151;
-    margin-bottom: 6px;
-  }}
-  .pick-card p strong {{ color: #1a1a2e; }}
+  /* ── SCORE BARS (rendered by JS) ── */
+  .pick-scores {{ display: none; }}  /* hide raw text; JS renders bars */
 
-  /* ── Top Pick ── */
-  .top-pick {{
-    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+  .score-grid {{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px 16px;
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    background: #f9fafb;
+    border-radius: 10px;
+  }}
+  .score-item {{ min-width: 0; }}
+  .score-label {{
+    font-size: 0.63rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }}
+  .score-bar-track {{
+    height: 5px;
+    background: #e5e7eb;
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 3px;
+  }}
+  .score-bar-fill {{
+    height: 100%;
+    border-radius: 99px;
+    background: var(--navy);
+    transition: width 0.6s cubic-bezier(.25,.8,.25,1);
+  }}
+  .score-value {{
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ink);
+  }}
+  .score-total-pill {{
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--navy);
     color: white;
-    border-radius: 12px;
-    padding: 24px 28px;
-    margin: 28px 0 14px;
+    border-radius: 8px;
+    padding: 7px 14px;
+    margin-top: 2px;
+  }}
+  .score-total-label {{
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.65;
+  }}
+  .score-total-value {{
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }}
+  .score-total-bar {{
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 99px;
+    margin: 0 14px;
+    overflow: hidden;
+  }}
+  .score-total-fill {{
+    height: 100%;
+    border-radius: 99px;
+    background: var(--green);
+  }}
+
+  .pick-card p {{
+    font-size: 0.88rem;
+    color: #374151;
+    margin-bottom: 5px;
+    line-height: 1.65;
+  }}
+  .pick-card p strong {{
+    color: var(--ink);
+    font-weight: 600;
+  }}
+  .pick-card p:last-child {{ margin-bottom: 0; }}
+
+  /* ── TOP PICK ── */
+  .top-pick {{
+    background: var(--navy);
+    color: white;
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin: 32px 0 16px;
+    position: relative;
+    overflow: hidden;
+  }}
+  .top-pick::after {{
+    content: '🏆';
+    position: absolute;
+    right: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 3.5rem;
+    opacity: 0.08;
+    pointer-events: none;
   }}
   .top-pick h2 {{
-    font-size: 1rem;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.2rem;
     font-weight: 700;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }}
+  .top-pick h2 .tp-badge {{
+    background: var(--green);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 3px 9px;
+    border-radius: 100px;
   }}
   .top-pick p {{
     font-size: 0.92rem;
-    opacity: 0.88;
-    line-height: 1.7;
+    opacity: 0.85;
+    line-height: 1.75;
+    max-width: 680px;
   }}
 
-  /* ── Buffett Quote ── */
+  /* ── BUFFETT QUOTE ── */
   .buffett-quote {{
-    background: white;
-    border-radius: 12px;
-    padding: 24px 28px;
-    margin-bottom: 36px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    border-top: 3px solid #1a1a2e;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px 32px 28px 36px;
+    margin-bottom: 40px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+    position: relative;
+  }}
+  .buffett-quote::before {{
+    content: '\\201C';
+    position: absolute;
+    left: 14px;
+    top: 12px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 4rem;
+    color: var(--green);
+    line-height: 1;
+    opacity: 0.35;
   }}
   .buffett-quote p {{
-    font-style: italic;
     font-size: 0.95rem;
+    font-style: italic;
     color: #374151;
-    line-height: 1.75;
+    line-height: 1.8;
   }}
+  .buffett-quote p + p {{ margin-top: 10px; }}
 
-  /* ── Footer ── */
+  /* ── FOOTER ── */
   footer {{
     text-align: center;
-    padding: 20px;
+    padding: 24px 20px;
     color: #9ca3af;
-    font-size: 0.78rem;
-    border-top: 1px solid #e5e7eb;
+    font-size: 0.75rem;
+    border-top: 1px solid var(--border);
+    background: white;
   }}
-  footer a {{ color: #6b7280; }}
+  footer strong {{ color: var(--muted); font-weight: 600; }}
 
-  @media (max-width: 600px) {{
-    header {{ padding: 18px 20px; }}
-    .header-right {{ text-align: left; }}
-    main {{ margin: 20px auto; }}
-    .pick-card {{ padding: 18px; }}
+  /* ── MOBILE ── */
+  @media (max-width: 640px) {{
+    header {{ padding: 0 20px; }}
+    main {{ margin: 24px auto; padding: 0 16px; }}
+    .pick-card {{ padding: 18px 20px; }}
+    .top-pick {{ padding: 22px 22px; }}
+    .score-grid {{ grid-template-columns: repeat(2, 1fr); }}
+    .top-pick::after {{ display: none; }}
   }}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">📈 Buffett <span>AI</span></div>
-  <div class="header-right">
-    <div class="report-date">{date}</div>
-    <div class="tagline">Daily Investment Report · Warren Buffett's Framework</div>
+  <div class="logo-block">
+    <div class="logo-icon">📈</div>
+    <div class="logo-text">
+      <strong>Buffett AI</strong>
+      <span>Investment Intelligence</span>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div class="header-date">{date}</div>
+    <div class="header-tag">Daily Report · Buffett Framework</div>
   </div>
 </header>
 
@@ -267,9 +518,53 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </main>
 
 <footer>
-  <p>Generated by Buffett AI · Not financial advice · Always do your own research</p>
-  <p style="margin-top:4px">Last updated: {timestamp}</p>
+  <strong>Buffett AI</strong> &nbsp;·&nbsp; Not financial advice &nbsp;·&nbsp; Always do your own research<br>
+  <span style="margin-top:4px;display:inline-block;opacity:0.6">Last updated: {timestamp}</span>
 </footer>
+
+<script>
+// Parse score text → visual bars
+document.querySelectorAll('.pick-scores').forEach(el => {{
+  const text = el.textContent;
+  const cats = [];
+  const catRe = /(Moat|Management|Financials|Predictability):\s*(\d+)\/10/gi;
+  const totalRe = /Total:\s*(\d+)\/40/i;
+  let m;
+  while ((m = catRe.exec(text)) !== null) {{
+    cats.push({{ label: m[1], val: parseInt(m[2]) }});
+  }}
+  const totalMatch = totalRe.exec(text);
+  const total = totalMatch ? parseInt(totalMatch[1]) : null;
+
+  if (cats.length === 0) return;
+
+  const grid = document.createElement('div');
+  grid.className = 'score-grid';
+
+  cats.forEach(c => {{
+    const pct = c.val / 10 * 100;
+    const color = pct >= 80 ? '#10b981' : pct >= 60 ? '#3b82f6' : pct >= 40 ? '#f59e0b' : '#ef4444';
+    grid.innerHTML += `
+      <div class="score-item">
+        <div class="score-label">${{c.label}}</div>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:${{pct}}%;background:${{color}}"></div></div>
+        <div class="score-value">${{c.val}}<span style="color:#9ca3af;font-weight:400">/10</span></div>
+      </div>`;
+  }});
+
+  if (total !== null) {{
+    const pct = total / 40 * 100;
+    grid.innerHTML += `
+      <div class="score-total-pill">
+        <span class="score-total-label">Total Score</span>
+        <div class="score-total-bar"><div class="score-total-fill" style="width:${{pct}}%"></div></div>
+        <span class="score-total-value">${{total}}<span style="opacity:0.5;font-size:0.75rem">/40</span></span>
+      </div>`;
+  }}
+
+  el.replaceWith(grid);
+}});
+</script>
 
 </body>
 </html>"""
