@@ -19,21 +19,50 @@ Warren Buffett's framework:
 - PREDICTABILITY: can you project earnings 10 years out? avoid airlines/commodities/fast-changing tech
 - VALUATION: intrinsic value = owner earnings / (discount rate - growth). Want 20-30% margin of safety
 
+Verdict definitions:
+- BUY NOW: trading at a meaningful discount to intrinsic value, high-quality business, act now
+- WAIT FOR DIP: great business but fairly/richly valued — wait for a 10-20%+ pullback
+- HOLD: own it, don't add, not a bargain today
+- AVOID: poor moat, bad financials, or so overvalued the risk/reward is poor
+
 Output ONLY HTML body content (no <!DOCTYPE>, no <html>, <head>, or <body> tags).
 Use EXACTLY these CSS class names — no others:
-  market-pulse, picks, pick-card, pick-header, pick-rank, pick-name, pick-verdict,
-  verdict-buy, verdict-wait, verdict-hold, verdict-avoid,
+  market-pulse,
+  watchlist, watchlist-item, watchlist-ticker, watchlist-company, watchlist-price,
+  watchlist-verdict, verdict-buy, verdict-wait, verdict-hold, verdict-avoid,
+  watchlist-note,
+  picks, pick-card, pick-header, pick-rank, pick-name, pick-verdict,
   pick-scores, top-pick, buffett-quote
 
-Structure your output like this:
+Structure your output in this EXACT order:
 
 <div class="market-pulse">
   <h2>Market Pulse</h2>
-  <p>What's happening in markets today from a Buffett perspective. What he'd be paying attention to.</p>
+  <p>2-3 sentences: what's happening in markets today that Buffett would care about.</p>
+</div>
+
+<div class="watchlist">
+  <h2>Buffett Verdict — Stocks Investors Are Watching</h2>
+  <p class="watchlist-intro">What would Buffett do with the most-discussed stocks right now?</p>
+
+  <!-- Include 12–16 major stocks investors commonly ask about today.
+       Always cover: AAPL, MSFT, NVDA, GOOGL, META, AMZN, ORCL, TSLA, BRK.B, JPM, V, WMT
+       Add any others that are in the news or heavily discussed today.
+       Use real current prices and valuations from your search. -->
+
+  <div class="watchlist-item">
+    <span class="watchlist-ticker">MSFT</span>
+    <span class="watchlist-company">Microsoft</span>
+    <span class="watchlist-price">$XXX</span>
+    <span class="watchlist-verdict verdict-wait">WAIT FOR DIP</span>
+    <span class="watchlist-note">P/E 32x — excellent moat but priced for perfection. Wait for sub-$380.</span>
+  </div>
+
+  [more watchlist-item rows for each stock]
 </div>
 
 <div class="picks">
-  <h2>Today's Top 5 Picks</h2>
+  <h2>Today's 5 Best Opportunities</h2>
 
   <div class="pick-card">
     <div class="pick-header">
@@ -54,11 +83,11 @@ Structure your output like this:
 
 <div class="top-pick">
   <h2>🏆 Top Pick of the Day</h2>
-  <p>Which of the 5 is the single best opportunity and why.</p>
+  <p>Which of the 5 is the single best opportunity right now and exactly why.</p>
 </div>
 
 <div class="buffett-quote">
-  <p>A closing paragraph in Buffett's voice summarizing his view of today's market and opportunities.</p>
+  <p>A closing paragraph in Buffett's voice summarizing his view of today's market.</p>
 </div>
 """
 
@@ -228,6 +257,96 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     line-height: 1.75;
   }}
   .market-pulse p + p {{ margin-top: 10px; }}
+
+  /* ── WATCHLIST ── */
+  .watchlist {{
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 26px 30px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+  }}
+  .watchlist h2 {{
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }}
+  .watchlist h2::after {{
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }}
+  .watchlist-intro {{
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }}
+  .watchlist-item {{
+    display: grid;
+    grid-template-columns: 68px 1fr 70px 120px;
+    align-items: center;
+    gap: 10px 14px;
+    padding: 11px 14px;
+    border-radius: 9px;
+    margin-bottom: 5px;
+    background: #f9fafb;
+    transition: background 0.15s;
+  }}
+  .watchlist-item:hover {{ background: #f0f2f5; }}
+  .watchlist-ticker {{
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: 0.02em;
+  }}
+  .watchlist-company {{
+    font-size: 0.85rem;
+    color: #374151;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }}
+  .watchlist-price {{
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 500;
+    text-align: right;
+  }}
+  .watchlist-verdict {{
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+    text-align: center;
+  }}
+  .watchlist-note {{
+    grid-column: 1 / -1;
+    font-size: 0.78rem;
+    color: var(--muted);
+    padding: 0 2px;
+    line-height: 1.4;
+    margin-top: -4px;
+    margin-bottom: 2px;
+  }}
+  @media (max-width: 640px) {{
+    .watchlist-item {{
+      grid-template-columns: 60px 1fr 60px;
+    }}
+    .watchlist-price {{ display: none; }}
+    .watchlist-note {{ grid-column: 1 / -1; }}
+  }}
 
   /* ── PICKS ── */
   .picks {{ margin-bottom: 8px; }}
@@ -582,21 +701,26 @@ def generate_report():
     content_buf = StringIO()
 
     with client.messages.stream(
-        model="claude-opus-4-6",
+        model="claude-sonnet-4-6",
         max_tokens=8000,
-        thinking={"type": "adaptive"},
         system=REPORT_SYSTEM,
         tools=[{"type": "web_search_20260209", "name": "web_search"}],
         messages=[{
             "role": "user",
             "content": (
                 f"Generate the daily Buffett AI investment report for {date_str}.\n\n"
-                "Search for:\n"
-                "1. What's happening in markets today that Buffett would care about\n"
-                "2. 5 high-quality stocks that are currently undervalued or have pulled back\n"
-                "   — look for wide-moat businesses with FCF yields above 4%, P/E below 5-year average,\n"
-                "     or recent price dislocations in otherwise great businesses\n\n"
-                "Output as HTML using the exact CSS classes specified."
+                "Search for the following and use REAL current prices and valuations:\n\n"
+                "1. Today's market overview — what's moving, what Buffett would notice\n\n"
+                "2. BUFFETT VERDICT on these specific stocks — search current price and P/E for each:\n"
+                "   AAPL, MSFT, NVDA, GOOGL, META, AMZN, ORCL, TSLA, BRK.B, JPM, V, WMT\n"
+                "   Plus any other stocks that are heavily discussed in the news today.\n"
+                "   Give each a verdict: BUY NOW / WAIT FOR DIP / HOLD / AVOID\n"
+                "   Include the current price and one-line reason for each verdict.\n\n"
+                "3. The 5 best opportunities right now — wide-moat businesses with FCF yields\n"
+                "   above 4%, P/E below 5-year average, or recent price dislocations.\n"
+                "   These can overlap with the watchlist above.\n\n"
+                "Output ONLY clean HTML using the exact CSS classes specified. "
+                "Do NOT output any markdown, explanatory text, or code fences — pure HTML only."
             )
         }],
     ) as stream:
