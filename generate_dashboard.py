@@ -88,9 +88,53 @@ WATCHLIST = [
     {"ticker": "DIS",   "name": "Disney"},
     {"ticker": "JNJ",   "name": "Johnson & Johnson"},
     {"ticker": "UNH",   "name": "UnitedHealth"},
+    {"ticker": "LLY",   "name": "Eli Lilly"},
+    {"ticker": "PFE",   "name": "Pfizer"},
+    {"ticker": "ABBV",  "name": "AbbVie"},
+    {"ticker": "MRK",   "name": "Merck"},
     {"ticker": "XOM",   "name": "ExxonMobil"},
     {"ticker": "CVX",   "name": "Chevron"},
     {"ticker": "BABA",  "name": "Alibaba"},
+    {"ticker": "PDD",   "name": "PDD Holdings"},
+    {"ticker": "ASML",  "name": "ASML"},
+    {"ticker": "TSM",   "name": "TSMC"},
+    {"ticker": "SAP",   "name": "SAP"},
+    {"ticker": "NOW",   "name": "ServiceNow"},
+    {"ticker": "WDAY",  "name": "Workday"},
+    {"ticker": "TEAM",  "name": "Atlassian"},
+    {"ticker": "DDOG",  "name": "Datadog"},
+    {"ticker": "ZS",    "name": "Zscaler"},
+    {"ticker": "CRWD",  "name": "CrowdStrike"},
+    {"ticker": "NET",   "name": "Cloudflare"},
+    {"ticker": "MDB",   "name": "MongoDB"},
+    {"ticker": "HUBS",  "name": "HubSpot"},
+    {"ticker": "TTD",   "name": "The Trade Desk"},
+    {"ticker": "APP",   "name": "AppLovin"},
+    {"ticker": "TGT",   "name": "Target"},
+    {"ticker": "LOW",   "name": "Lowe's"},
+    {"ticker": "TJX",   "name": "TJX Companies"},
+    {"ticker": "LULU",  "name": "Lululemon"},
+    {"ticker": "AXP",   "name": "American Express"},
+    {"ticker": "C",     "name": "Citigroup"},
+    {"ticker": "WFC",   "name": "Wells Fargo"},
+    {"ticker": "CME",   "name": "CME Group"},
+    {"ticker": "ICE",   "name": "Intercontinental Exchange"},
+    {"ticker": "CAT",   "name": "Caterpillar"},
+    {"ticker": "DE",    "name": "Deere & Company"},
+    {"ticker": "BA",    "name": "Boeing"},
+    {"ticker": "RTX",   "name": "RTX (Raytheon)"},
+    {"ticker": "GE",    "name": "GE Aerospace"},
+    {"ticker": "LIN",   "name": "Linde"},
+    {"ticker": "APH",   "name": "Amphenol"},
+    {"ticker": "T",     "name": "AT&T"},
+    {"ticker": "VZ",    "name": "Verizon"},
+    {"ticker": "CHTR",  "name": "Charter Communications"},
+    {"ticker": "ISRG",  "name": "Intuitive Surgical"},
+    {"ticker": "TMO",   "name": "Thermo Fisher"},
+    {"ticker": "MSTR",  "name": "MicroStrategy"},
+    {"ticker": "HOOD",  "name": "Robinhood"},
+    {"ticker": "SOFI",  "name": "SoFi Technologies"},
+    {"ticker": "RBLX",  "name": "Roblox"},
 ]
 
 PORTFOLIO_TICKERS = {p["ticker"] for p in PORTFOLIO}
@@ -398,7 +442,7 @@ footer {{ text-align:center; padding:24px; color:#9ca3af; font-size:.72rem; }}
 
 <div class="tabs">
   <button class="tab active" onclick="switchTab('portfolio', this)">My Portfolio</button>
-  <button class="tab" onclick="switchTab('watchlist', this)">Market Watchlist ({len(WATCHLIST)})</button>
+  <button class="tab" onclick="switchTab('watchlist', this)">Market Watchlist — Top {len(WATCHLIST)}</button>
 </div>
 
 <main>
