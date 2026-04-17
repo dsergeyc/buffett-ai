@@ -8,6 +8,7 @@ import anthropic
 import json
 import os
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -195,12 +196,16 @@ def fetch_portfolio_verdicts(client) -> dict:
 
 def fetch_watchlist_verdicts(client) -> dict:
     tickers = [w["ticker"] for w in WATCHLIST]
-    mid = len(tickers) // 2
-    print("  Fetching watchlist verdicts (batch 1/2)…")
-    r1 = fetch_verdicts_batch(client, tickers[:mid])
-    print("  Fetching watchlist verdicts (batch 2/2)…")
-    r2 = fetch_verdicts_batch(client, tickers[mid:])
-    return {**r1, **r2}
+    third   = len(tickers) // 3
+    batches = [tickers[:third], tickers[third:third*2], tickers[third*2:]]
+    results = {}
+    for i, batch in enumerate(batches, 1):
+        print(f"  Fetching watchlist verdicts (batch {i}/3)…")
+        results.update(fetch_verdicts_batch(client, batch))
+        if i < len(batches):
+            print("  Waiting 70s to stay within rate limits…")
+            time.sleep(70)
+    return results
 
 
 def fetch_market_pulse(client, date_str: str) -> str:
@@ -661,9 +666,13 @@ def generate():
     print(f"📈 Buffett AI Dashboard — {date_str}")
 
     prices             = fetch_prices()
-    portfolio_verdicts = fetch_portfolio_verdicts(client)
-    watchlist_verdicts = fetch_watchlist_verdicts(client)
     pulse              = fetch_market_pulse(client, date_str)
+    print("  Waiting 70s before portfolio verdicts…")
+    time.sleep(70)
+    portfolio_verdicts = fetch_portfolio_verdicts(client)
+    print("  Waiting 70s before watchlist…")
+    time.sleep(70)
+    watchlist_verdicts = fetch_watchlist_verdicts(client)
 
     html = build_html(prices, portfolio_verdicts, watchlist_verdicts, pulse, date_str, timestamp)
 
