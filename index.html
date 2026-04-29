@@ -45,21 +45,33 @@ header {
 .sep { width:1px; height:30px; background:var(--border); flex-shrink:0; }
 .btn {
   background:var(--green); color:#fff; border:none; border-radius:8px;
-  padding:7px 15px; font:600 .76rem 'Inter',sans-serif; cursor:pointer; transition:background .15s;
+  padding:7px 15px; font:600 .76rem 'Inter',sans-serif; cursor:pointer;
 }
-.btn:hover { background:#059669; }
 .btn-ghost {
   background:transparent; color:var(--muted); border:1px solid var(--border);
-  border-radius:8px; padding:7px 13px; font:600 .76rem 'Inter',sans-serif; cursor:pointer; transition:all .15s;
+  border-radius:8px; padding:7px 13px; font:600 .76rem 'Inter',sans-serif; cursor:pointer;
 }
-.btn-ghost:hover { border-color:var(--navy); color:var(--navy); }
 .live-dot {
   width:7px; height:7px; border-radius:50%; background:var(--green);
   display:inline-block; margin-right:5px; animation:pulse 2s infinite;
 }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
+/* ── Tabs ── */
+.tabs {
+  background:#fff; border-bottom:1px solid var(--border); padding:0 32px; display:flex;
+}
+.tab {
+  background:none; border:none; cursor:pointer; padding:12px 20px;
+  font:600 .82rem 'Inter',sans-serif; color:var(--muted);
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+}
+.tab.active { color:var(--navy); border-bottom-color:var(--green); }
+
 main { max-width:1280px; margin:28px auto; padding:0 24px 40px; }
+.pane { display:none; }
+.pane.active { display:block; }
+
 .card { background:var(--card); border-radius:var(--r); border:1px solid var(--border);
   box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04); overflow:hidden; }
 .card-hdr {
@@ -83,8 +95,12 @@ tr:hover td { background:#f9fafb; }
 .td-name   { color:var(--muted); font-size:.82rem; }
 .td-num    { font-variant-numeric:tabular-nums; white-space:nowrap; }
 .fw6       { font-weight:600; }
-.td-reason { color:var(--muted); font-size:.75rem; max-width:200px; }
+.td-reason { color:var(--muted); font-size:.75rem; max-width:240px; }
 .pct       { opacity:.6; font-size:.8em; }
+.owned-tag {
+  margin-left:6px; font-size:.55rem; font-weight:700; color:var(--green);
+  text-transform:uppercase; letter-spacing:.06em;
+}
 
 .vbadge {
   display:inline-block; padding:3px 9px; border-radius:100px;
@@ -95,13 +111,16 @@ tr:hover td { background:#f9fafb; }
 .v-trim { background:var(--amber2);  color:#78350f; }
 .v-sell { background:var(--red2);    color:#7f1d1d; }
 
+.summary-pills { display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+.pill { padding:4px 12px; border-radius:100px; font-size:.72rem; font-weight:700; }
+
 footer { text-align:center; padding:24px; color:#9ca3af; font-size:.72rem; }
 
 @media(max-width:768px) {
   th:nth-child(3), td:nth-child(3),
   th:nth-child(8), td:nth-child(8) { display:none; }
   .summary { gap:16px; padding:12px 16px; }
-  header, .pulse-bar, .summary { padding-left:16px; padding-right:16px; }
+  header, .pulse-bar, .summary, .tabs { padding-left:16px; padding-right:16px; }
   main { padding:16px 12px 32px; }
 }
 </style>
@@ -117,15 +136,13 @@ footer { text-align:center; padding:24px; color:#9ca3af; font-size:.72rem; }
     </div>
   </div>
   <div class="hdr-right">
-    <strong>Thursday, April 16, 2026</strong>
-    Verdicts updated 2026-04-16 18:14 UTC
+    <strong>Wednesday, April 29, 2026</strong>
+    Verdicts updated 2026-04-29 15:55 UTC
   </div>
 </header>
 
 <div class="pulse-bar">
-  <strong>Market Pulse</strong>Here is what's happening in financial markets today that Warren Buffett would care about:
-
-US equities have advanced to fresh record highs, supported by a solid start to the earnings season, which matters to Buffett as Berkshire Hathaway's massive equity portfolio rises in value with the market. However, Brent crude is approaching $100 a barrel as Gulf Arab and European leaders signal that the US-Iran conflict will continue to linger, a concern given Berkshire's significant energy holdings and the broader inflationary pressure rising oil prices can put on the economy. Markets remain sensitive to any shifts in military operations or diplomatic breakthroughs that could impact global oil prices and equity valuations, exactly the kind of macroeconomic uncertainty Buffett monitors closely when sizing up long-term investment opportunities.
+  <strong>Market Pulse</strong>Today, markets are largely in a holding pattern as investors await the Federal Reserve's interest rate decision and major Big Tech earnings reports due this afternoon — the kind of &quot;wait and see&quot; environment Buffett typically finds unremarkable but telling. Goldman Sachs has raised its Brent crude oil forecast to $90 a barrel by late 2026, as stalled U.S.-Iran peace talks and persistent Persian Gulf disruptions tighten global supply sharply. The S&P 500 is sitting near 7,135, the Dow is down about 152 points, and crude oil has surged roughly 5% to around $104 a barrel — the kind of energy-driven inflationary pressure Buffett, with Berkshire's large stakes in consumer and insurance businesses, watches closely.
 </div>
 
 <div class="summary">
@@ -151,39 +168,63 @@ US equities have advanced to fresh record highs, supported by a solid start to t
       <span id="price-status">Loading…</span>
     </span>
   </div>
-  <div style="margin-left:auto;display:flex;gap:8px">
+  <div style="margin-left:auto">
     <button class="btn-ghost" onclick="refreshPrices()">↻ Prices</button>
   </div>
 </div>
 
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('portfolio', this)">My Portfolio</button>
+  <button class="tab" onclick="switchTab('watchlist', this)">Market Watchlist — Top 50</button>
+</div>
+
 <main>
-  <div class="card">
-    <div class="card-hdr">
-      <span class="card-title">Holdings</span>
-      <span class="card-meta" id="verdict-meta">Verdicts by Claude (Warren Buffett framework) · 2026-04-16 18:14 UTC</span>
+
+  <!-- Portfolio pane -->
+  <div id="pane-portfolio" class="pane active">
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title">Holdings</span>
+        <span class="card-meta">Verdicts by Claude (Warren Buffett framework) · 2026-04-29 15:55 UTC</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Ticker</th><th>Name</th><th>Shares</th><th>Price</th>
+            <th>Value</th><th>Today</th><th>Verdict</th><th>Why</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-portfolio"></tbody>
+      </table>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Ticker</th>
-          <th>Name</th>
-          <th>Shares</th>
-          <th>Price</th>
-          <th>Value</th>
-          <th>Today</th>
-          <th>Verdict</th>
-          <th>Why</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
   </div>
+
+  <!-- Watchlist pane -->
+  <div id="pane-watchlist" class="pane">
+    <div class="summary-pills" id="watchlist-pills"></div>
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-title">Top 50 Stocks — Buffett Verdict</span>
+        <span class="card-meta">Claude analysis · 2026-04-29 15:55 UTC</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Ticker</th><th>Company</th><th>Price</th><th>Day %</th><th>Verdict</th><th>Why</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-watchlist"></tbody>
+      </table>
+    </div>
+  </div>
+
 </main>
 
 <footer>Buffett AI &nbsp;·&nbsp; Not financial advice &nbsp;·&nbsp; Always do your own research</footer>
 
 <script>
-const PORTFOLIO = [{"ticker": "ADBE", "label": "ADBE", "name": "Adobe", "shares": null, "value": 100000, "price": 247.5, "prev": 244.66, "verdict": "BUY MORE", "reason": "P/E 23x, below avg, dominant moat, AI fears overdone"}, {"ticker": "AAPL", "label": "AAPL", "name": "Apple", "shares": 78, "value": null, "price": 263.86, "prev": 266.43, "verdict": "HOLD", "reason": "P/E 33x, 34% above hist avg, great moat, pricey"}, {"ticker": "QQQ", "label": "QQQ", "name": "QQQ ETF", "shares": 29.12, "value": null, "price": 638.695, "prev": 637.4, "verdict": "HOLD", "reason": "P/E 34x, tech-heavy, Buffett prefers S&P500, pricier than VOO"}, {"ticker": "QQQM", "label": "QQQM", "name": "QQQM ETF", "shares": 14, "value": null, "price": 262.97, "prev": 262.48, "verdict": "HOLD", "reason": "P/E 34x, identical to QQQ, lower cost, tech concentration risk"}, {"ticker": "MSFT", "label": "MSFT", "name": "Microsoft", "shares": 35, "value": null, "price": 418.15, "prev": 411.22, "verdict": "BUY MORE", "reason": "P/E 24x, 21% below hist avg, Azure/AI moat, great value"}, {"ticker": "SHOP", "label": "SHOP", "name": "Shopify", "shares": 81, "value": null, "price": 127.25, "prev": 127.41, "verdict": "TRIM", "reason": "P/E 104x, rich valuation, good biz but priced for perfection"}, {"ticker": "NVDA", "label": "NVDA", "name": "NVIDIA", "shares": 39, "value": null, "price": 197.955, "prev": 198.87, "verdict": "HOLD", "reason": "P/E 40x, AI dominance, fast earnings growth justifies premium"}, {"ticker": "GOOGL", "label": "GOOGL", "name": "Alphabet", "shares": 14, "value": null, "price": 335.38, "prev": 337.12, "verdict": "BUY MORE", "reason": "P/E 29x, near hist avg, search moat, AI upside, cheap"}, {"ticker": "TSLA", "label": "TSLA", "name": "Tesla", "shares": 8, "value": null, "price": 387.265, "prev": 391.95, "verdict": "SELL", "reason": "P/E 317x, no margin of safety, brand risk, speculation"}, {"ticker": "META", "label": "META", "name": "Meta", "shares": 4, "value": null, "price": 674.12, "prev": 671.58, "verdict": "HOLD", "reason": "P/E 28x, strong earnings, social moat, high AI capex risk"}, {"ticker": "NFLX", "label": "NFLX", "name": "Netflix", "shares": 45, "value": null, "price": 108.1037, "prev": 107.71, "verdict": "HOLD", "reason": "P/E 41x, solid growth, but no durable moat for Buffett"}, {"ticker": "AMD", "label": "AMD", "name": "AMD", "shares": 14, "value": null, "price": 273.89, "prev": 258.12, "verdict": "TRIM", "reason": "P/E 75x, high vs growth, NVDA competition, narrow moat"}, {"ticker": "TWLO", "label": "TWLO", "name": "Twilio", "shares": 18, "value": null, "price": 135.885, "prev": 134.07, "verdict": "SELL", "reason": "P/E 609x, no real moat, AI disruption risk, speculative"}, {"ticker": "TCEHY", "label": "TCEHY", "name": "Tencent", "shares": 27, "value": null, "price": 65.62, "prev": 64.25, "verdict": "HOLD", "reason": "P/E 21x, cheap, strong business but China regulatory risk"}, {"ticker": "VOO", "label": "VOO", "name": "VOO ETF", "shares": 1, "value": null, "price": 644.0211, "prev": 643.45, "verdict": "BUY MORE", "reason": "P/E 27x, S&P500 ETF, Buffett-endorsed, broad moat, low cost"}, {"ticker": "ORCL", "label": "ORCL", "name": "Oracle", "shares": 12, "value": null, "price": 177.42, "prev": 169.81, "verdict": "HOLD", "reason": "P/E 28x, reasonable, cloud/AI tailwind, growth accelerating"}, {"ticker": "BTC-USD", "label": "BTC", "name": "Bitcoin", "shares": 0.05821928, "value": null, "price": 74421.6094, "prev": 74805.0781, "verdict": "\u2014", "reason": ""}, {"ticker": "ETH-USD", "label": "ETH", "name": "Ethereum", "shares": 0.84374, "value": null, "price": 2328.0, "prev": 2359.437, "verdict": "\u2014", "reason": ""}];
+const PORTFOLIO  = [{"ticker": "ADBE", "label": "ADBE", "name": "Adobe", "shares": null, "value": 100000, "price": 241.3, "prev": 243.2, "verdict": "BUY MORE", "reason": "P/E 13x, 57% below sector avg, deep value moat"}, {"ticker": "AAPL", "label": "AAPL", "name": "Apple", "shares": 78, "value": null, "price": 268.5022, "prev": 270.71, "verdict": "HOLD", "reason": "P/E 33x, great moat but fully priced"}, {"ticker": "QQQ", "label": "QQQ", "name": "QQQ ETF", "shares": 29.12, "value": null, "price": 658.74, "prev": 657.55, "verdict": "HOLD", "reason": "P/E ~29x, diversified tech ETF, fair value"}, {"ticker": "QQQM", "label": "QQQM", "name": "QQQM ETF", "shares": 14, "value": null, "price": 271.27, "prev": 270.76, "verdict": "HOLD", "reason": "P/E ~29x, same as QQQ, lower fee 0.15%"}, {"ticker": "MSFT", "label": "MSFT", "name": "Microsoft", "shares": 35, "value": null, "price": 423.7, "prev": 429.25, "verdict": "HOLD", "reason": "P/E 32x, elite moat, cloud growth, fairly valued"}, {"ticker": "SHOP", "label": "SHOP", "name": "Shopify", "shares": 81, "value": null, "price": 120.38, "prev": 122.05, "verdict": "TRIM", "reason": "P/E 103x, no margin of safety, too speculative"}, {"ticker": "NVDA", "label": "NVDA", "name": "NVIDIA", "shares": 39, "value": null, "price": 210.31, "prev": 213.17, "verdict": "HOLD", "reason": "P/E 43x, fwd 25x, AI dominance justifies partial premium"}, {"ticker": "GOOGL", "label": "GOOGL", "name": "Alphabet", "shares": 14, "value": null, "price": 351.095, "prev": 349.78, "verdict": "BUY MORE", "reason": "P/E 30x, fwd 23x, cheap for quality AI cash machine"}, {"ticker": "TSLA", "label": "TSLA", "name": "Tesla", "shares": 8, "value": null, "price": 370.43, "prev": 376.02, "verdict": "SELL", "reason": "P/E 130x+, no earnings basis, purely speculative"}, {"ticker": "META", "label": "META", "name": "Meta", "shares": 4, "value": null, "price": 668.555, "prev": 671.34, "verdict": "BUY MORE", "reason": "P/E 24x, strong FCF, advertising moat, reasonable price"}, {"ticker": "NFLX", "label": "NFLX", "name": "Netflix", "shares": 45, "value": null, "price": 91.9382, "prev": 92.27, "verdict": "TRIM", "reason": "P/E 41x, dominant but richly priced, limited upside"}, {"ticker": "AMD", "label": "AMD", "name": "AMD", "shares": 14, "value": null, "price": 327.845, "prev": 323.21, "verdict": "TRIM", "reason": "P/E 75-113x, GPU growth priced in, overextended"}, {"ticker": "TWLO", "label": "TWLO", "name": "Twilio", "shares": 18, "value": null, "price": 141.17, "prev": 142.16, "verdict": "SELL", "reason": "P/E 76x, no durable moat, weak pricing power"}, {"ticker": "TCEHY", "label": "TCEHY", "name": "Tencent", "shares": 27, "value": null, "price": 60.34, "prev": 60.54, "verdict": "HOLD", "reason": "P/E ~15x, cheap but China risk limits conviction"}, {"ticker": "VOO", "label": "VOO", "name": "VOO ETF", "shares": 1, "value": null, "price": 652.285, "prev": 654.26, "verdict": "BUY MORE", "reason": "P/E 23x, S&P 500 index, Buffett's own recommendation"}, {"ticker": "ORCL", "label": "ORCL", "name": "Oracle", "shares": 12, "value": null, "price": 162.67, "prev": 165.96, "verdict": "BUY MORE", "reason": "P/E 31x vs peer avg 50x, cloud pivot undervalued"}, {"ticker": "BTC-USD", "label": "BTC", "name": "Bitcoin", "shares": 0.05821928, "value": null, "price": 75739.2969, "prev": 76350.6719, "verdict": "\u2014", "reason": ""}, {"ticker": "ETH-USD", "label": "ETH", "name": "Ethereum", "shares": 0.84374, "value": null, "price": 2265.53, "prev": 2289.4197, "verdict": "\u2014", "reason": ""}];
+const WATCHLIST  = [{"ticker": "AAPL", "name": "Apple", "price": 268.5022, "prev": 270.71, "verdict": "HOLD", "reason": "P/E ~32x, strong moat, but limited growth runway", "inPortfolio": true}, {"ticker": "MSFT", "name": "Microsoft", "price": 423.7, "prev": 429.25, "verdict": "BUY MORE", "reason": "Fwd P/E ~31x, Azure+AI growth justifies premium", "inPortfolio": true}, {"ticker": "NVDA", "name": "NVIDIA", "price": 210.31, "prev": 213.17, "verdict": "HOLD", "reason": "Fwd P/E ~35x, AI dominance but priced for perfection", "inPortfolio": true}, {"ticker": "GOOGL", "name": "Alphabet", "price": 351.095, "prev": 349.78, "verdict": "BUY MORE", "reason": "Fwd P/E ~20x, cheapest mega-cap, AI upside", "inPortfolio": true}, {"ticker": "META", "name": "Meta", "price": 668.555, "prev": 671.34, "verdict": "BUY MORE", "reason": "Fwd P/E ~24x, ad machine, AI efficiency gains", "inPortfolio": true}, {"ticker": "TSLA", "name": "Tesla", "price": 370.43, "prev": 376.02, "verdict": "SELL", "reason": "P/E ~130x, auto margins falling, no margin of safety", "inPortfolio": true}, {"ticker": "NFLX", "name": "Netflix", "price": 91.9382, "prev": 92.27, "verdict": "HOLD", "reason": "Fwd P/E ~40x, strong growth but fully valued", "inPortfolio": true}, {"ticker": "SHOP", "name": "Shopify", "price": 120.38, "prev": 122.05, "verdict": "HOLD", "reason": "P/S ~15x, high growth but no consistent earnings yet", "inPortfolio": true}, {"ticker": "AMD", "name": "AMD", "price": 327.845, "prev": 323.21, "verdict": "HOLD", "reason": "Fwd P/E ~25x, strong AI chips but NVDA competition", "inPortfolio": true}, {"ticker": "TWLO", "name": "Twilio", "price": 141.17, "prev": 142.16, "verdict": "BUY MORE", "reason": "Fwd P/E ~18x, undervalued, improving profitability", "inPortfolio": true}, {"ticker": "ORCL", "name": "Oracle", "price": 162.67, "prev": 165.96, "verdict": "HOLD", "reason": "Fwd P/E ~26x, cloud inflection real but priced in", "inPortfolio": true}, {"ticker": "ADBE", "name": "Adobe", "price": 241.3, "prev": 243.2, "verdict": "HOLD", "reason": "Fwd P/E ~22x, AI risk to moat, fairly valued", "inPortfolio": true}, {"ticker": "TCEHY", "name": "Tencent", "price": 60.34, "prev": 60.54, "verdict": "BUY MORE", "reason": "Fwd P/E ~14x, deep value, gaming+AI recovery", "inPortfolio": true}, {"ticker": "AMZN", "name": "Amazon", "price": 263.46, "prev": 259.7, "verdict": "BUY MORE", "reason": "Fwd P/E ~35x, AWS + ads margin expansion ahead", "inPortfolio": false}, {"ticker": "CRM", "name": "Salesforce", "price": 179.59, "prev": 181.32, "verdict": "HOLD", "reason": "Fwd P/E ~27x, AI Agentforce promising but prove-it mode", "inPortfolio": false}, {"ticker": "PLTR", "name": "Palantir", "price": 136.15, "prev": 141.18, "verdict": "TRIM", "reason": "P/S ~70x, AI hype richly priced, speculative premium", "inPortfolio": false}, {"ticker": "UBER", "name": "Uber", "price": 73.73, "prev": 74.11, "verdict": "BUY MORE", "reason": "Fwd P/E ~25x, profitable, platform moat widening", "inPortfolio": false}, {"ticker": "COIN", "name": "Coinbase", "price": 178.36, "prev": 194.1, "verdict": "TRIM", "reason": "P/E varies wildly with crypto cycle, highly speculative", "inPortfolio": false}, {"ticker": "APP", "name": "AppLovin", "price": 432.755, "prev": 449.03, "verdict": "HOLD", "reason": "Fwd P/E ~40x, ad tech momentum but rich valuation", "inPortfolio": false}, {"ticker": "NOW", "name": "ServiceNow", "price": 87.445, "prev": 90.49, "verdict": "HOLD", "reason": "Fwd P/E ~50x, best-in-class SaaS but very expensive", "inPortfolio": false}, {"ticker": "AVGO", "name": "Broadcom", "price": 398.9, "prev": 399.83, "verdict": "BUY MORE", "reason": "Fwd P/E ~26x, AI custom chips + VMware integration", "inPortfolio": false}, {"ticker": "QCOM", "name": "Qualcomm", "price": 153.6, "prev": 150.0, "verdict": "BUY MORE", "reason": "Fwd P/E ~14x, cheap, PC+auto diversification paying off", "inPortfolio": false}, {"ticker": "ARM", "name": "Arm Holdings", "price": 198.5, "prev": 198.65, "verdict": "TRIM", "reason": "Fwd P/E ~80x, IP moat is real but valuation extreme", "inPortfolio": false}, {"ticker": "TSM", "name": "TSMC", "price": 391.8501, "prev": 392.34, "verdict": "BUY MORE", "reason": "Fwd P/E ~18x, irreplaceable AI fab, geopolitical discount", "inPortfolio": false}, {"ticker": "MU", "name": "Micron", "price": 518.48, "prev": 504.29, "verdict": "BUY MORE", "reason": "Fwd P/E ~12x, HBM memory supercycle, undervalued", "inPortfolio": false}, {"ticker": "BRK-B", "name": "Berkshire Hathaway", "price": 475.41, "prev": 478.16, "verdict": "BUY MORE", "reason": "P/E 23x, Buffett's own fortress, undervalued conglomerate.", "inPortfolio": false}, {"ticker": "JPM", "name": "JPMorgan Chase", "price": 307.7298, "prev": 311.45, "verdict": "BUY MORE", "reason": "P/E 15x, best-run bank, durable moat, fair price.", "inPortfolio": false}, {"ticker": "V", "name": "Visa", "price": 335.885, "prev": 309.3, "verdict": "BUY MORE", "reason": "P/E 26x, down 12% YTD, tollbooth moat, rare entry.", "inPortfolio": false}, {"ticker": "MA", "name": "Mastercard", "price": 526.212, "prev": 507.62, "verdict": "HOLD", "reason": "P/E 29x, excellent moat but slightly pricier than Visa.", "inPortfolio": false}, {"ticker": "GS", "name": "Goldman Sachs", "price": 899.73, "prev": 926.55, "verdict": "HOLD", "reason": "P/E 18x, cyclical earnings, not a Buffett-style business.", "inPortfolio": false}, {"ticker": "BAC", "name": "Bank of America", "price": 52.35, "prev": 52.66, "verdict": "BUY MORE", "reason": "P/E 14x, Buffett's top bank pick, cheap on earnings.", "inPortfolio": false}, {"ticker": "BLK", "name": "BlackRock", "price": 1031.5601, "prev": 1049.76, "verdict": "HOLD", "reason": "P/E 27x, asset-mgmt moat, fairly valued at current levels.", "inPortfolio": false}, {"ticker": "AXP", "name": "American Express", "price": 314.7, "prev": 315.9, "verdict": "BUY MORE", "reason": "P/E 20x, Buffett top holding, down 14% YTD, strong brand.", "inPortfolio": false}, {"ticker": "SPGI", "name": "S&P Global", "price": 430.05, "prev": 433.47, "verdict": "BUY MORE", "reason": "P/E 28x, far below 3yr avg of 44x, duopoly ratings moat.", "inPortfolio": false}, {"ticker": "WMT", "name": "Walmart", "price": 127.205, "prev": 127.59, "verdict": "TRIM", "reason": "P/E 48x, great business but richly priced for retail growth.", "inPortfolio": false}, {"ticker": "COST", "name": "Costco", "price": 990.552, "prev": 994.0, "verdict": "TRIM", "reason": "P/E 52x, exceptional business, valuation leaves no margin of safety.", "inPortfolio": false}, {"ticker": "KO", "name": "Coca-Cola", "price": 78.65, "prev": 78.35, "verdict": "HOLD", "reason": "P/E 26x, Buffett's forever hold, fairly valued steady compounder.", "inPortfolio": false}, {"ticker": "MCD", "name": "McDonald's", "price": 291.235, "prev": 292.39, "verdict": "HOLD", "reason": "P/E 27x, franchise moat intact, fair value, no clear catalyst.", "inPortfolio": false}, {"ticker": "NKE", "name": "Nike", "price": 44.265, "prev": 45.03, "verdict": "TRIM", "reason": "P/E 29x, brand under pressure, earnings declining, avoid adding.", "inPortfolio": false}, {"ticker": "HD", "name": "Home Depot", "price": 320.25, "prev": 329.06, "verdict": "HOLD", "reason": "P/E 23x, quality retailer, fairly priced, housing market headwind.", "inPortfolio": false}, {"ticker": "DIS", "name": "Disney", "price": 100.85, "prev": 101.47, "verdict": "HOLD", "reason": "P/E 18x, streaming turnaround in progress, watch earnings recovery.", "inPortfolio": false}, {"ticker": "JNJ", "name": "Johnson & Johnson", "price": 226.96, "prev": 227.79, "verdict": "HOLD", "reason": "P/E 22x, solid medtech/pharma moat, litigation risk lingers.", "inPortfolio": false}, {"ticker": "UNH", "name": "UnitedHealth", "price": 367.785, "prev": 366.77, "verdict": "TRIM", "reason": "P/E 27x, elevated vs. peers amid DOJ probe and cost pressures.", "inPortfolio": false}, {"ticker": "LLY", "name": "Eli Lilly", "price": 856.08, "prev": 874.0, "verdict": "HOLD", "reason": "Fwd P/E 27x, GLP-1 growth priced in, spectacular but not cheap.", "inPortfolio": false}, {"ticker": "XOM", "name": "ExxonMobil", "price": 153.165, "prev": 150.56, "verdict": "HOLD", "reason": "Fwd P/E 14x, strong balance sheet, oil price dependency remains.", "inPortfolio": false}, {"ticker": "CVX", "name": "Chevron", "price": 191.322, "prev": 188.36, "verdict": "HOLD", "reason": "P/E 26x, Buffett holds it, decent yield, commodity cycle risk.", "inPortfolio": false}, {"ticker": "BABA", "name": "Alibaba", "price": 130.55, "prev": 130.85, "verdict": "TRIM", "reason": "P/E 18x, cheap but geopolitical/regulatory risk too unpredictable.", "inPortfolio": false}, {"ticker": "CRWD", "name": "CrowdStrike", "price": 449.31, "prev": 454.99, "verdict": "SELL", "reason": "Fwd P/E 84x, no TTM earnings, speculation not Buffett's style.", "inPortfolio": false}, {"ticker": "INTC", "name": "Intel", "price": 92.74, "prev": 84.52, "verdict": "SELL", "reason": "Fwd P/E 87x, deep losses, turnaround unproven, avoid margin of safety.", "inPortfolio": false}, {"ticker": "PEP", "name": "PepsiCo", "price": 154.905, "prev": 156.29, "verdict": "HOLD", "reason": "P/E 20x, consumer staple moat, volume weakness, fairly valued.", "inPortfolio": false}];
 
 const VERDICT_CLASS = {
   "BUY MORE": "v-buy",
@@ -191,16 +232,28 @@ const VERDICT_CLASS = {
   "TRIM":     "v-trim",
   "SELL":     "v-sell",
 };
+const VERDICT_PILL = {
+  "BUY MORE": { bg:"#d1fae5", color:"#065f46" },
+  "HOLD":     { bg:"#ede9fe", color:"#4c1d95" },
+  "TRIM":     { bg:"#fef3c7", color:"#78350f" },
+  "SELL":     { bg:"#fee2e2", color:"#7f1d1d" },
+};
+const ORDER = { "BUY MORE":0, "HOLD":1, "TRIM":2, "SELL":3 };
 
 function fmt(n, digits=2) {
-  return n.toLocaleString('en-US', {minimumFractionDigits: digits, maximumFractionDigits: digits});
+  return n.toLocaleString('en-US', {minimumFractionDigits:digits, maximumFractionDigits:digits});
 }
 
-function renderTable(data) {
-  let totalValue = 0, totalGain = 0;
-  const tbody = document.getElementById('tbody');
-  tbody.innerHTML = '';
+function badge(verdict) {
+  const vc = VERDICT_CLASS[verdict] || 'v-hold';
+  return `<span class="vbadge ${vc}">${verdict}</span>`;
+}
 
+// ── Portfolio table ──────────────────────────────────────────────────────
+function renderPortfolio(data) {
+  let totalValue = 0, totalGain = 0;
+  const tbody = document.getElementById('tbody-portfolio');
+  tbody.innerHTML = '';
   data.forEach(p => {
     const price  = p.price || 0;
     const prev   = p.prev  || price;
@@ -208,27 +261,22 @@ function renderTable(data) {
     const value  = price * shares;
     const gain   = (price - prev) * shares;
     const pct    = prev ? (price - prev) / prev * 100 : 0;
-    totalValue += value;
-    totalGain  += gain;
-
-    const gainSign = gain >= 0 ? '+' : '';
-    const gainCls  = gain >= 0 ? 'pos' : 'neg';
-    const shareStr = p.ticker.endsWith('-USD') ? shares.toFixed(5) : fmt(shares, 0);
-    const vc = VERDICT_CLASS[p.verdict] || 'v-hold';
-
-    tbody.innerHTML += `
-      <tr>
-        <td class="td-ticker">${p.label}</td>
-        <td class="td-name">${p.name}</td>
-        <td class="td-num">${shareStr}</td>
-        <td class="td-num fw6">$${fmt(price)}</td>
-        <td class="td-num fw6">$${fmt(value, 0)}</td>
-        <td class="td-num ${gainCls}">${gainSign}$${fmt(Math.abs(gain), 0)}<span class="pct"> (${gainSign}${Math.abs(pct).toFixed(2)}%)</span></td>
-        <td><span class="vbadge ${vc}">${p.verdict}</span></td>
-        <td class="td-reason">${p.reason}</td>
-      </tr>`;
+    totalValue  += value;
+    totalGain   += gain;
+    const gs = gain >= 0 ? '+' : '';
+    const gc = gain >= 0 ? 'pos' : 'neg';
+    const ss = p.ticker.endsWith('-USD') ? shares.toFixed(5) : fmt(shares, 0);
+    tbody.innerHTML += `<tr>
+      <td class="td-ticker">${p.label}</td>
+      <td class="td-name">${p.name}</td>
+      <td class="td-num">${ss}</td>
+      <td class="td-num fw6">${price > 0 ? '$'+fmt(price) : '—'}</td>
+      <td class="td-num fw6">${value > 0 ? '$'+fmt(value,0) : '—'}</td>
+      <td class="td-num ${gc}">${price > 0 ? gs+'$'+fmt(Math.abs(gain),0)+'<span class="pct"> ('+gs+Math.abs(pct).toFixed(2)+'%)</span>' : '—'}</td>
+      <td>${badge(p.verdict)}</td>
+      <td class="td-reason">${p.reason}</td>
+    </tr>`;
   });
-
   document.getElementById('total-value').textContent = '$' + fmt(totalValue, 0);
   const pnlEl = document.getElementById('total-pnl');
   const sign  = totalGain >= 0 ? '+' : '';
@@ -236,50 +284,98 @@ function renderTable(data) {
   pnlEl.className   = 'stat-val ' + (totalGain >= 0 ? 'pos' : 'neg');
 }
 
-// Render immediately with baked-in prices
-renderTable(PORTFOLIO);
+// ── Watchlist table ──────────────────────────────────────────────────────
+function renderWatchlist(data) {
+  const sorted = [...data].sort((a,b) => {
+    const oa = a.verdict in ORDER ? ORDER[a.verdict] : 5;
+    const ob = b.verdict in ORDER ? ORDER[b.verdict] : 5;
+    return oa - ob;
+  });
 
-// ── Live price refresh via Yahoo Finance ────────────────────────────────
+  const counts = {};
+  sorted.forEach(r => { if (r.verdict !== '—') counts[r.verdict] = (counts[r.verdict]||0)+1; });
+  const pillsEl = document.getElementById('watchlist-pills');
+  pillsEl.innerHTML = ['BUY MORE','HOLD','TRIM','SELL']
+    .filter(k => counts[k])
+    .map(k => {
+      const s = VERDICT_PILL[k];
+      return `<span class="pill" style="background:${s.bg};color:${s.color}">${k} · ${counts[k]}</span>`;
+    }).join('');
+
+  const tbody = document.getElementById('tbody-watchlist');
+  tbody.innerHTML = '';
+  sorted.forEach(w => {
+    const price = w.price || 0;
+    const prev  = w.prev  || price;
+    const pct   = prev ? (price - prev) / prev * 100 : 0;
+    const ps    = pct >= 0 ? '+' : '';
+    const pc    = pct >= 0 ? 'pos' : 'neg';
+    const owned = w.inPortfolio ? '<span class="owned-tag">owned</span>' : '';
+    tbody.innerHTML += `<tr>
+      <td class="td-ticker">${w.ticker}${owned}</td>
+      <td class="td-name">${w.name}</td>
+      <td class="td-num fw6">${price > 0 ? '$'+fmt(price) : '—'}</td>
+      <td class="td-num ${pc}">${price > 0 ? ps+Math.abs(pct).toFixed(2)+'%' : '—'}</td>
+      <td>${badge(w.verdict)}</td>
+      <td class="td-reason">${w.reason}</td>
+    </tr>`;
+  });
+}
+
+// ── Tab switching ────────────────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pane-'+name).classList.add('active');
+}
+
+// ── Initial render ───────────────────────────────────────────────────────
+renderPortfolio(PORTFOLIO);
+renderWatchlist(WATCHLIST);
+
+// ── Live price refresh ───────────────────────────────────────────────────
 async function refreshPrices() {
   document.getElementById('price-status').textContent = 'Updating…';
   document.getElementById('live-dot').style.background = '#f59e0b';
 
-  const tickers = PORTFOLIO.map(p => p.ticker).join(',');
-  const yhUrl   = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${tickers}&lang=en-US&region=US`;
+  const allTickers = [...new Set([
+    ...PORTFOLIO.map(p => p.ticker),
+    ...WATCHLIST.map(w => w.ticker),
+  ])].join(',');
+  const yhUrl    = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${allTickers}&lang=en-US&region=US`;
   const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(yhUrl)}`;
 
   try {
-    const res  = await fetch(proxyUrl, {signal: AbortSignal.timeout(10000)});
-    const data = await res.json();
+    const res    = await fetch(proxyUrl, {signal: AbortSignal.timeout(10000)});
+    const data   = await res.json();
     const quotes = data?.quoteResponse?.result || [];
-
-    if (quotes.length === 0) throw new Error('empty');
+    if (!quotes.length) throw new Error('empty');
 
     const priceMap = {};
     quotes.forEach(q => {
-      priceMap[q.symbol] = {
-        price: q.regularMarketPrice,
-        prev:  q.regularMarketPreviousClose,
-      };
+      priceMap[q.symbol] = { price: q.regularMarketPrice, prev: q.regularMarketPreviousClose };
     });
 
-    const updated = PORTFOLIO.map(p => ({
-      ...p,
-      price: priceMap[p.ticker]?.price ?? p.price,
-      prev:  priceMap[p.ticker]?.prev  ?? p.prev,
+    const updatedPortfolio = PORTFOLIO.map(p => ({
+      ...p, price: priceMap[p.ticker]?.price ?? p.price, prev: priceMap[p.ticker]?.prev ?? p.prev,
+    }));
+    const updatedWatchlist = WATCHLIST.map(w => ({
+      ...w, price: priceMap[w.ticker]?.price ?? w.price, prev: priceMap[w.ticker]?.prev ?? w.prev,
     }));
 
-    renderTable(updated);
+    renderPortfolio(updatedPortfolio);
+    renderWatchlist(updatedWatchlist);
+
     const now = new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
     document.getElementById('price-status').textContent = `Live · ${now}`;
     document.getElementById('live-dot').style.background = '#10b981';
-  } catch (e) {
+  } catch(e) {
     document.getElementById('price-status').textContent = 'Snapshot (as of report)';
     document.getElementById('live-dot').style.background = '#9ca3af';
   }
 }
 
-// Initial live fetch + auto-refresh every 60s
 refreshPrices();
 setInterval(refreshPrices, 60000);
 </script>
